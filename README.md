@@ -1,58 +1,61 @@
-# XVideoSaver
+# XTG Media Saver (`XTGMediaSaver`)
 
-<img src="docs/icon.png" width="112" alt="XVideoSaver icon" />
+<p>
+  <img src="docs/icon.png" width="112" alt="XTG Media Saver icon" />
+</p>
 
-包名：`io.github.iammaplezeng.xvideosaver`
+**English** | [简体中文](README_ZH.md)
 
-当前版本：**v1.0.2**。
+Save photos and videos from X and Telegram.
 
-[下载 APK](https://github.com/IamMapleZeng/XVideoSaver/releases/tag/v1.0.2)
+Current version: **v1.1.0** — [Download APK](https://github.com/IamMapleZeng/XTGMediaSaver/releases/tag/v1.1.0)
 
-此版本专门适配从用户连接的手机提取的 **X 12.46.1-prod.01，versionCode 312461001**。X 更新后版本校验不通过时不安装 Hook，需要重新分析适配。
+## Supported Host Versions
 
-## 功能
+This module uses exact static-analysis adapters verified against real APKs (hooks are disabled automatically if a host version does not match):
 
-- **视频 / GIF 下载**：保留 X 原有的长按菜单和原生下载器，在下载视频或 GIF 时自动通过本地会员检查（支持信息流长按与视频页下载）。
-- **图片帖子一键下载全部图片**：长按图片帖子时，在原生 `Save Photo` / 保存图片选项下方新增“下载全部图片”（英文系统下显示为 `Save All Photo`，选项语言跟随系统语言），点击后自动批量下载该帖子内的全部原图并保存至相册 `Pictures/XVideoSaver`。
-- **图文混合帖子双选项**：同时包含图片和视频的帖子，长按菜单中会同时提供“下载视频”与“下载全部图片”两个选项；纯图片帖子则只提供图片保存选项，不出现“下载视频”。
+| Platform | Package | Adapted Version | Version Code |
+| --- | --- | --- | --- |
+| **X (Twitter)** | `com.twitter.android` | `12.46.1-prod.01` | `312461001` |
+| **Telegram** | `org.telegram.messenger` | `13.3.1` | `73461` |
 
-## 实现
+## Features
 
-保留 X 原有的长按菜单和原生视频下载器。
+### X (Twitter)
+- **Video & GIF Download**: Keeps X's native long-press menu and built-in downloader, unlocking local subscription eligibility during video/GIF download actions (both timeline long-press and video player menu).
+- **Save All Photos in One Tap**: Adds a localized **Save All Photo** / **下载全部图片** option right below X's native `Save Photo` item when long-pressing image posts. Downloads full-resolution (`name=orig`) images in the background to `Pictures/XTGMediaSaver` via `MediaStore`.
+- **Mixed Media Posts**: Posts containing both photos and videos show **both** video download and **Save All Photo** options; pure image posts only show photo save options (no Save Video).
 
-1. **视频 / GIF 下载**：仅在以下两个下载事件同步执行期间，针对当前线程，让本地会员检查通过：
-   - 信息流长按菜单保存视频或 GIF：`com.x.urt.items.post.m5.invoke(Object)`，事件 `com.x.urt.items.post.y4`，媒体为 `com.x.models.y4` 或 `com.x.models.r4`。
-   - 视频页下载：`com.x.video.tab.n0.i(com.x.video.tab.d9)`，事件 `com.x.video.tab.j8`。
-   - 会员谓词为 `com.x.subscriptions.a0.g(): boolean`。事件执行结束（包括抛出异常）时恢复线程状态，其他事件和其他线程保持原结果。视频的清晰度选择、文件命名和保存目录由 X 原生下载器决定。
-2. **图片帖子批量下载**：在长按媒体触发 `com.x.urt.items.post.m4` 时读取当前帖子的全部媒体列表（`com.x.models.v5.g()`），并在 `com.x.ui.common.sheets.h.b(...)` 渲染底部菜单时按帖子媒体类型注入本地化的“下载全部图片 / Save All Photo”项（图文混合帖子同时确保存在“下载视频”项）。点击后在后台请求原图（`name=orig`）并通过 `MediaStore` 保存至 `Pictures/XVideoSaver`。
+### Telegram
+- **Unlock Restricted Group / Channel Media Saving**: Bypasses client-side `noforwards` restrictions in protected groups and channels so Telegram's native **Save to Gallery** / **Save Video** / **Save to Downloads** options appear in both the message menu and full-screen `PhotoViewer`.
 
-模块只在 X 主进程加载，不包含网络上传、账号读取、后台服务或额外权限。
+### App UI
+- **Material 3 Design**: Supports Light/Dark themes, edge-to-edge layout, and Android 12+ Material You dynamic colors.
+- **Localized App Name**: Displays `XTG Media Saver` in English and `X、TG 媒体下载器` in Simplified Chinese based on the system language.
+- **Independent Dual-Platform Controls**: Displays live LSPosed activation status at the top, with separate configuration cards and feature toggles for **X (Twitter)** and **Telegram**.
 
-## 安装
+## Installation & Usage
 
-1. 从 GitHub Releases 安装 `XVideoSaver-v1.0.2.apk`。
-2. 在 LSPosed 中启用“XVideoSaver”，作用域只勾选 X（`com.twitter.android`）。
-3. 在系统设置中强行停止 X，然后重新打开。
-4. **下载视频 / GIF**：长按视频点击“下载视频”，或在视频页菜单中下载。
-5. **下载全部图片**：长按图片帖子，点击 `Save Photo` 下方的“下载全部图片 / Save All Photo”（图文混合帖子会同时显示“下载视频”和“下载全部图片”），图片会自动保存至相册 `Pictures/XVideoSaver`。
-6. 检查下载完成提示，并确认视频/图片已正常保存。
+1. Download and install `XTGMediaSaver-v1.1.0.apk` from [GitHub Releases](https://github.com/IamMapleZeng/XTGMediaSaver/releases/tag/v1.1.0).
+2. Enable **XTG Media Saver** in **LSPosed** and select **X** (`com.twitter.android`) and **Telegram** (`org.telegram.messenger`) in scope.
+3. Force stop and reopen X or Telegram.
+4. Use it directly inside the apps:
+   - **X**: Long-press a video to save via the native downloader, or long-press an image post and tap **Save All Photo** to batch-save all images.
+   - **Telegram**: Tap a photo/video in a restricted group/channel or open it in full-screen viewer and tap **Save to Gallery** / **Save Video**.
 
-不要把“版本匹配”当作 Hook 已加载证明。LSPosed 日志中应出现 `[XVideoSaver] READY`；点击视频下载时应出现 `download tap=long-press` 或 `download tap=player` 及 `download eligibility applied`，点击批量下载图片时应出现 `download tap=all-images`。模块不记录账号、媒体链接和内容。
+## Privacy & Permissions
 
-## 验证边界
+- Runs strictly inside the scoped host processes (`com.twitter.android` and `org.telegram.messenger`).
+- No analytics, no account reading, no background services, and no extra storage permissions required (`MediaStore` on Android 10+).
 
-入口、媒体字段、会员判断和后续原生下载调用通过用户手机上的实际 APK 静态分析确认。编译和单元测试不能代替真机验收。模块需要在 LSPosed 启用后，验证不再弹会员提示、下载完成以及文件可播放。只有这些均完成，才能认为适配成功。
+## Build
 
-HyperOS 4、LSP 2.2.1 为用户提供的环境信息；尚未通过运行测试验证该组合。构建使用传统 Xposed API 82，要求框架保留该接口。
-
-## 构建
-
-JDK 17、Android SDK 35、Gradle 8.10.2。创建本机的 `local.properties` 并设置 `sdk.dir`，运行：
+Requires **JDK 17**, **Android SDK 35**, and **Gradle 8.10+**. Configure `sdk.dir` in `local.properties`, then run:
 
 ```powershell
 .\gradlew.bat :app:testDebugUnitTest :app:assembleRelease
 ```
 
-输出为 `app/build/outputs/apk/release/app-release-unsigned.apk`，需使用 Android SDK 的 `apksigner` 签名后安装。v1.0.0 发布 APK 沿用此前测试版的本机 Android Debug 签名，支持覆盖此前已安装版本；它不是新的生产签名。后续覆盖更新必须使用相同签名。私钥不包含在仓库或源码压缩包中。
+The unsigned release APK is generated at `app/build/outputs/apk/release/app-release-unsigned.apk` and should be signed with Android SDK `apksigner` before installation.
 
-`app/libs/xposed-api-82.jar` 来自 https://api.xposed.info/de/robv/android/xposed/api/82/api-82.jar，仅作 compileOnly 使用，不打包入 APK。其上游为 XposedBridge，见 THIRD_PARTY.md。
+`app/libs/xposed-api-82.jar` is used as `compileOnly` and is not bundled into the APK (see [THIRD_PARTY.md](THIRD_PARTY.md)).

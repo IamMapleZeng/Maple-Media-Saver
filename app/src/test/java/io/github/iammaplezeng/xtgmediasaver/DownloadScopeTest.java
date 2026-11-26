@@ -1,4 +1,4 @@
-package io.github.iammaplezeng.xvideosaver;
+package io.github.iammaplezeng.xtgmediasaver;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -30,10 +30,15 @@ public class DownloadScopeTest {
         finally { scope.restore(token); }
         assertFalse(scope.active());
     }
-    @Test public void versionMustMatchBothFields() {
-        assertTrue(HostVersion.supported("12.46.1-prod.01", 312461001));
-        assertFalse(HostVersion.supported("12.46.1-prod.01", 312461002));
-        assertFalse(HostVersion.supported("12.47.0", 312461001));
+    @Test public void xVersionMustMatchBothFields() {
+        assertTrue(HostVersions.xSupported("12.46.1-prod.01", 312461001));
+        assertFalse(HostVersions.xSupported("12.46.1-prod.01", 312461002));
+        assertFalse(HostVersions.xSupported("12.47.0", 312461001));
+    }
+    @Test public void telegramVersionMustMatchBothFields() {
+        assertTrue(HostVersions.telegramSupported("13.3.1", 73461));
+        assertFalse(HostVersions.telegramSupported("13.3.1", 73462));
+        assertFalse(HostVersions.telegramSupported("13.4.0", 73461));
     }
     @Test public void localeStringsMatchSystemLanguage() {
         assertEquals("下载全部图片", LocaleStrings.downloadAllImagesLabel(Locale.SIMPLIFIED_CHINESE));

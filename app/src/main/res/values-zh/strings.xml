@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">X、TG 媒体下载器</string>
+    <string name="xposed_description">保存 X 和 Telegram 中的图片与视频。</string>
+</resources>

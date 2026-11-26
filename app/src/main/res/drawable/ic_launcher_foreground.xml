@@ -1,10 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
-    <path android:fillColor="#FFFFFF" android:pathData="M28,27 L40,27 L76,75 L64,75 Z M68,27 L77,27 L37,75 L28,75 Z" />
-    <path android:fillColor="#000000" android:pathData="M72,56 A17,17 0,1 1,72 90 A17,17 0,1 1,72 56" />
-    <path android:fillColor="#34D399" android:pathData="M72,59 A14,14 0,1 1,72 87 A14,14 0,1 1,72 59" />
-    <path android:fillColor="#00000000" android:strokeColor="#000000" android:strokeWidth="3"
-        android:strokeLineCap="round" android:strokeLineJoin="round"
-        android:pathData="M72,65 L72,78 M67,73 L72,78 L77,73 M66,82 L78,82" />
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Subtle inner framing glow -->
+    <path
+        android:fillColor="#161C24"
+        android:pathData="M24,20 H84 A4,4 0 0 1 88,24 V84 A4,4 0 0 1 84,88 H24 A4,4 0 0 1 20,84 V24 A4,4 0 0 1 24,20 Z" />
+
+    <!-- Left: Crisp White X Glyph -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M26,30 L34.5,30 L50,58 L41.5,58 Z M45,30 L51,30 L32,58 L26,58 Z" />
+
+    <!-- Right: Telegram Paper Plane Glyph (Sky Blue) -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M82,31 L56,42.5 C54.5,43.2 54.6,45.3 56.1,45.8 L63.5,48.3 L77.5,37.8 L66.8,50.5 L66.5,57.5 C66.4,58.8 68.0,59.4 68.9,58.5 L72.8,54.4 L77.5,57.8 C78.6,58.6 80.1,58.0 80.4,56.7 L84.2,33.6 C84.5,31.9 83.2,30.5 82,31 Z" />
+
+    <!-- Bottom-center Download Badge Halo -->
+    <path
+        android:fillColor="#0E1116"
+        android:pathData="M54,55 A18,18 0 1 1 54,91 A18,18 0 1 1 54,55 Z" />
+
+    <!-- Bottom-center Emerald Download Circle -->
+    <path
+        android:fillColor="#34D399"
+        android:pathData="M54,58 A15,15 0 1 1 54,88 A15,15 0 1 1 54,58 Z" />
+
+    <!-- Download Arrow -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#0E1116"
+        android:strokeWidth="3.2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M54,65 L54,77.5 M48.5,72.5 L54,78 L59.5,72.5 M47.5,82 L60.5,82" />
 </vector>

@@ -1,4 +1,4 @@
-package io.github.iammaplezeng.xvideosaver;
+package io.github.iammaplezeng.xtgmediasaver;
 
 import java.util.Locale;
 

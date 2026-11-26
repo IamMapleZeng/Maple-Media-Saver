@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">XTG Media Saver</string>
+    <string name="xposed_description">Save photos and videos from X and Telegram.</string>
+</resources>

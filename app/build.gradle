@@ -1,13 +1,13 @@
 plugins { id 'com.android.application' }
 android {
-    namespace 'io.github.iammaplezeng.xvideosaver'
+    namespace 'io.github.iammaplezeng.xtgmediasaver'
     compileSdk 35
     defaultConfig {
-        applicationId 'io.github.iammaplezeng.xvideosaver'
+        applicationId 'io.github.iammaplezeng.xtgmediasaver'
         minSdk 29
         targetSdk 35
-        versionCode 10002
-        versionName '1.0.2'
+        versionCode 10100
+        versionName '1.1.0'
     }
     buildFeatures { buildConfig true }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }

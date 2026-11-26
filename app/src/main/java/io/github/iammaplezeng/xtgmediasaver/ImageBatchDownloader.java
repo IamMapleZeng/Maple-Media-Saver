@@ -1,4 +1,4 @@
-package io.github.iammaplezeng.xvideosaver;
+package io.github.iammaplezeng.xtgmediasaver;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -20,7 +20,7 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/** Downloads all images of a post into MediaStore (Pictures/XVideoSaver) on a background thread. */
+/** Downloads all images of a post into MediaStore (Pictures/XTGMediaSaver) on a background thread. */
 final class ImageBatchDownloader {
     private static volatile ExecutorService executor;
 
@@ -149,7 +149,7 @@ final class ImageBatchDownloader {
         ContentValues values = new ContentValues();
         values.put(MediaStore.Images.Media.DISPLAY_NAME, "X_" + stamp + "_" + index + "." + img.ext);
         values.put(MediaStore.Images.Media.MIME_TYPE, img.mime);
-        values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/XVideoSaver");
+        values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/XTGMediaSaver");
         values.put(MediaStore.Images.Media.IS_PENDING, 1);
 
         Uri uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);

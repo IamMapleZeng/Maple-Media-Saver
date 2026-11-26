@@ -1,4 +1,4 @@
-package io.github.iammaplezeng.xvideosaver;
+package io.github.iammaplezeng.xtgmediasaver;
 
 import android.app.Application;
 import android.content.Context;
@@ -11,15 +11,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
-/** Exact adapter derived from the user's installed X APK, never guessed across versions. */
-public final class XVideoSaverModule implements IXposedHookLoadPackage {
-    private static final String HOST = "com.twitter.android";
-    private static final String TOKEN = "io.github.iammaplezeng.xvideosaver.scope";
+/** Exact adapter for X 12.46.1-prod.01 (312461001). */
+final class XMediaHook {
+    private static final String TOKEN = "io.github.iammaplezeng.xtgmediasaver.x.scope";
     private static final int RES_SAVE_VIDEO = 0x7f133426;
     private static final int RES_SAVE_GIF = 0x7f133422;
 
@@ -28,45 +26,25 @@ public final class XVideoSaverModule implements IXposedHookLoadPackage {
     private volatile Context hostContext;
     private volatile PostMediaContext activePostMedia;
 
-    private static void log(String message) { XposedBridge.log("[XVideoSaver] " + message); }
-
-    private static void hookSelfActivation(ClassLoader loader) {
-        try {
-            Class<?> statusClass = Class.forName(ModuleStatus.class.getName(), false, loader);
-            Method isActivated = statusClass.getDeclaredMethod("isActivated");
-            XposedBridge.hookMethod(isActivated, new XC_MethodHook() {
-                @Override protected void beforeHookedMethod(MethodHookParam param) {
-                    param.setResult(true);
-                }
-            });
-        } catch (Throwable error) {
-            log("SELF HOOK FAILED: " + error.getClass().getSimpleName());
-        }
-    }
-
-    @Override public void handleLoadPackage(XC_LoadPackage.LoadPackageParam p) throws Throwable {
-        if (BuildConfig.APPLICATION_ID.equals(p.packageName)) {
-            hookSelfActivation(p.classLoader);
-            return;
-        }
-        if (!HOST.equals(p.packageName) || !HOST.equals(p.processName)) return;
-        log("loaded module=" + BuildConfig.VERSION_NAME);
+    void handleLoadPackage(XC_LoadPackage.LoadPackageParam p) throws Throwable {
+        XTGMediaSaverModule.log("[X] loaded module=" + BuildConfig.VERSION_NAME);
         Method attach = Application.class.getDeclaredMethod("attach", Context.class);
         XposedBridge.hookMethod(attach, new XC_MethodHook() {
-            @Override protected void afterHookedMethod(MethodHookParam param) {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) {
                 if (!installed.compareAndSet(false, true)) return;
                 try {
                     Context context = (Context) param.args[0];
                     hostContext = context.getApplicationContext() != null ? context.getApplicationContext() : context;
-                    PackageInfo info = context.getPackageManager().getPackageInfo(HOST, 0);
-                    log("host=" + info.versionName + " code=" + info.getLongVersionCode());
-                    if (!HostVersion.supported(info.versionName, info.getLongVersionCode())) {
-                        log("UNSUPPORTED: expected " + HostVersion.NAME + "; hooks disabled");
+                    PackageInfo info = context.getPackageManager().getPackageInfo(HostVersions.X_PACKAGE, 0);
+                    XTGMediaSaverModule.log("[X] host=" + info.versionName + " code=" + info.getLongVersionCode());
+                    if (!HostVersions.xSupported(info.versionName, info.getLongVersionCode())) {
+                        XTGMediaSaverModule.log("[X] UNSUPPORTED: expected " + HostVersions.X_NAME + "; hooks disabled");
                         return;
                     }
                     install(context.getClassLoader());
                 } catch (Throwable error) {
-                    log("INSTALL FAILED: " + error.getClass().getSimpleName() + ": " + error.getMessage());
+                    XTGMediaSaverModule.log("[X] INSTALL FAILED: " + error.getClass().getSimpleName() + ": " + error.getMessage());
                 }
             }
         });
@@ -102,7 +80,6 @@ public final class XVideoSaverModule implements IXposedHookLoadPackage {
         Class<?> unitClass = Class.forName("kotlin.Unit", false, loader);
         Object unitInstance = unitClass.getDeclaredField("a").get(null);
 
-        // Long-press bottom sheet symbols
         Class<?> sheetsH = Class.forName("com.x.ui.common.sheets.h", false, loader);
         Class<?> immutableListClass = Class.forName("kotlinx.collections.immutable.c", false, loader);
         Class<?> function1Class = Class.forName("kotlin.jvm.functions.Function1", false, loader);
@@ -138,28 +115,28 @@ public final class XVideoSaverModule implements IXposedHookLoadPackage {
         Method mediaSaveMenuGetMedia = mediaSaveMenu.getDeclaredMethod("a");
         Method toImmutableList = Class.forName("com.x.urt.items.post.media.f1", false, loader).getDeclaredMethod("n", Iterable.class);
 
-        // Resolve every symbol before installing any hooks. Nothing changes on a mismatch.
         XposedBridge.hookMethod(premium, new XC_MethodHook() {
-            @Override protected void beforeHookedMethod(MethodHookParam param) {
-                if (scope.active()) {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) {
+                if (scope.active() && ModulePrefs.isXVideoEnabled()) {
                     param.setResult(true);
-                    log("download eligibility applied");
+                    XTGMediaSaverModule.log("[X] download eligibility applied");
                 }
             }
         });
 
         XposedBridge.hookMethod(playerDispatch, tapHook(
-                action -> downloadEvent.isInstance(action),
+                action -> downloadEvent.isInstance(action) && ModulePrefs.isXVideoEnabled(),
                 "player"
         ));
 
         XposedBridge.hookMethod(postDispatch, new XC_MethodHook() {
-            @Override protected void beforeHookedMethod(MethodHookParam param) {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) {
                 try {
                     if (param.args.length == 0 || param.args[0] == null) return;
                     Object action = param.args[0];
 
-                    // Capture post media list when user long-presses any media in a post
                     if (longPressEvent.isInstance(action)) {
                         activePostMedia = extractPostMedia(
                                 param.thisObject,
@@ -175,28 +152,30 @@ public final class XVideoSaverModule implements IXposedHookLoadPackage {
                         return;
                     }
 
-                    if (!saveAction.isInstance(action)) return;
+                    if (!saveAction.isInstance(action) || !ModulePrefs.isXVideoEnabled()) return;
                     Object item = media.get(action);
                     if (videoModel.isInstance(item) || gifModel.isInstance(item)) {
                         int previous = scope.enter();
                         param.setObjectExtra(TOKEN, previous);
-                        log("download tap=long-press");
+                        XTGMediaSaverModule.log("[X] download tap=long-press");
                     }
                 } catch (Throwable error) {
-                    log("TAP FAILED: " + error.getClass().getSimpleName());
+                    XTGMediaSaverModule.log("[X] TAP FAILED: " + error.getClass().getSimpleName());
                 }
             }
 
-            @Override protected void afterHookedMethod(MethodHookParam param) {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) {
                 Object previous = param.getObjectExtra(TOKEN);
                 if (previous instanceof Integer) scope.restore((Integer) previous);
             }
         });
 
-        // Inject "Download all images" (and ensure video option on mixed posts) in media long-press sheet
         XposedBridge.hookMethod(sheetRender, new XC_MethodHook() {
-            @Override protected void beforeHookedMethod(MethodHookParam param) {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) {
                 try {
+                    if (!ModulePrefs.isXAllImagesEnabled()) return;
                     PostMediaContext ctx = activePostMedia;
                     if (ctx == null || !ctx.hasImages()) return;
                     if (!(param.args[0] instanceof List)) return;
@@ -204,15 +183,12 @@ public final class XVideoSaverModule implements IXposedHookLoadPackage {
                     List<?> originalItems = (List<?>) param.args[0];
                     if (originalItems.isEmpty()) return;
 
-                    // Confirm this bottom sheet is the post media long-press menu
                     boolean isMediaMenu = false;
                     boolean hasVideoDownloadItem = false;
                     for (Object item : originalItems) {
                         if (!sheetItemClass.isInstance(item)) continue;
                         Object payload = sheetItemActionField.get(item);
-                        if (payload instanceof DownloadAllImagesPayload) {
-                            return;
-                        }
+                        if (payload instanceof DownloadAllImagesPayload) return;
                         if (mediaMenuBase.isInstance(payload)) {
                             isMediaMenu = true;
                         }
@@ -229,7 +205,6 @@ public final class XVideoSaverModule implements IXposedHookLoadPackage {
                     int insertIndex = -1;
                     for (Object item : originalItems) {
                         Object payload = sheetItemClass.isInstance(item) ? sheetItemActionField.get(item) : null;
-                        // Pure image post: ensure no Save Video item appears
                         if (!ctx.hasVideo() && mediaSaveMenu.isInstance(payload)) {
                             Object targetMedia = mediaSaveMenuGetMedia.invoke(payload);
                             if (videoModel.isInstance(targetMedia) || gifModel.isInstance(targetMedia)) {
@@ -242,8 +217,7 @@ public final class XVideoSaverModule implements IXposedHookLoadPackage {
                         }
                     }
 
-                    // Mixed post (images + video/GIF): ensure Save Video/GIF option also appears
-                    if (ctx.hasVideo() && !hasVideoDownloadItem) {
+                    if (ctx.hasVideo() && !hasVideoDownloadItem && ModulePrefs.isXVideoEnabled()) {
                         Object videoPayload = mediaSaveMenuCtor.newInstance(ctx.firstVideo);
                         int resId = gifModel.isInstance(ctx.firstVideo) ? RES_SAVE_GIF : RES_SAVE_VIDEO;
                         Object videoTitle = resTextCtor.newInstance(resId);
@@ -258,7 +232,6 @@ public final class XVideoSaverModule implements IXposedHookLoadPackage {
                         }
                     }
 
-                    // Add localized "Download all images" option
                     DownloadAllImagesPayload allImagesPayload = new DownloadAllImagesPayload(ctx.imageUrls, ctx.sheetState);
                     Object allImagesTitle = stringTextCtor.newInstance(LocaleStrings.downloadAllImagesLabel());
                     Object allImagesSheetItem = sheetItemCtor.newInstance(
@@ -272,7 +245,6 @@ public final class XVideoSaverModule implements IXposedHookLoadPackage {
 
                     param.args[0] = toImmutableList.invoke(null, updatedItems);
 
-                    // Wrap onItemSelected Function1 to handle our custom DownloadAllImagesPayload
                     Object originalCallback = param.args[1];
                     if (originalCallback != null && function1Class.isInstance(originalCallback)) {
                         Method fnInvoke = function1Class.getMethod("invoke", Object.class);
@@ -288,7 +260,7 @@ public final class XVideoSaverModule implements IXposedHookLoadPackage {
                                         if (tappedPayload instanceof DownloadAllImagesPayload) {
                                             DownloadAllImagesPayload req = (DownloadAllImagesPayload) tappedPayload;
                                             dismissSheet(req.sheetState, stateSetValueMethod);
-                                            log("download tap=all-images count=" + req.imageUrls.size());
+                                            XTGMediaSaverModule.log("[X] download tap=all-images count=" + req.imageUrls.size());
                                             ImageBatchDownloader.downloadAll(hostContext, req.imageUrls);
                                             return unitInstance;
                                         }
@@ -299,12 +271,12 @@ public final class XVideoSaverModule implements IXposedHookLoadPackage {
                         );
                     }
                 } catch (Throwable error) {
-                    log("MENU HOOK FAILED: " + error.getClass().getSimpleName());
+                    XTGMediaSaverModule.log("[X] MENU HOOK FAILED: " + error.getClass().getSimpleName());
                 }
             }
         });
 
-        log("READY: player + long-press + all-images; exact adapter " + HostVersion.NAME);
+        XTGMediaSaverModule.log("[X] READY: player + long-press + all-images; exact adapter " + HostVersions.X_NAME);
     }
 
     private static void dismissSheet(Object sheetState, Method setValueMethod) {
@@ -349,7 +321,7 @@ public final class XVideoSaverModule implements IXposedHookLoadPackage {
             Object sheetState = sheetStateField.get(m5Instance);
             return new PostMediaContext(Collections.unmodifiableList(imageUrls), firstVideo, sheetState);
         } catch (Throwable error) {
-            log("EXTRACT MEDIA FAILED: " + error.getClass().getSimpleName());
+            XTGMediaSaverModule.log("[X] EXTRACT MEDIA FAILED: " + error.getClass().getSimpleName());
             return null;
         }
     }
@@ -358,18 +330,21 @@ public final class XVideoSaverModule implements IXposedHookLoadPackage {
 
     private XC_MethodHook tapHook(DownloadAction action, String path) {
         return new XC_MethodHook() {
-            @Override protected void beforeHookedMethod(MethodHookParam param) {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) {
                 try {
                     if (param.args.length > 0 && action.matches(param.args[0])) {
                         int previous = scope.enter();
                         param.setObjectExtra(TOKEN, previous);
-                        log("download tap=" + path);
+                        XTGMediaSaverModule.log("[X] download tap=" + path);
                     }
                 } catch (Throwable error) {
-                    log("TAP FAILED: " + error.getClass().getSimpleName());
+                    XTGMediaSaverModule.log("[X] TAP FAILED: " + error.getClass().getSimpleName());
                 }
             }
-            @Override protected void afterHookedMethod(MethodHookParam param) {
+
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) {
                 Object previous = param.getObjectExtra(TOKEN);
                 if (previous instanceof Integer) scope.restore((Integer) previous);
             }

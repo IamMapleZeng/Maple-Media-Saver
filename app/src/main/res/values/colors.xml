@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="icon_background">#000000</color>
+    <color name="icon_background">#0E1116</color>
 
     <!-- Material 3 Light Tonal Palette (Emerald seed matching app icon) -->
     <color name="md_theme_primary">#006C4C</color>

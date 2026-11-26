@@ -1,4 +1,4 @@
-package io.github.iammaplezeng.xvideosaver;
+package io.github.iammaplezeng.xtgmediasaver;
 
 /** Subscription override exists only on the current thread during a download tap. */
 final class DownloadScope {
