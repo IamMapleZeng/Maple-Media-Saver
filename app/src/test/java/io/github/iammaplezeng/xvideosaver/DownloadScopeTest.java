@@ -2,6 +2,7 @@ package io.github.iammaplezeng.xvideosaver;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DownloadScopeTest {
@@ -33,5 +34,25 @@ public class DownloadScopeTest {
         assertTrue(HostVersion.supported("12.46.1-prod.01", 312461001));
         assertFalse(HostVersion.supported("12.46.1-prod.01", 312461002));
         assertFalse(HostVersion.supported("12.47.0", 312461001));
+    }
+    @Test public void localeStringsMatchSystemLanguage() {
+        assertEquals("下载全部图片", LocaleStrings.downloadAllImagesLabel(Locale.SIMPLIFIED_CHINESE));
+        assertEquals("下載全部圖片", LocaleStrings.downloadAllImagesLabel(Locale.TRADITIONAL_CHINESE));
+        assertEquals("Save All Photo", LocaleStrings.downloadAllImagesLabel(Locale.US));
+        assertEquals("すべての画像を保存", LocaleStrings.downloadAllImagesLabel(Locale.JAPAN));
+    }
+    @Test public void originalUrlUpgradesTwimgMedia() {
+        assertEquals(
+                "https://pbs.twimg.com/media/ABC123.jpg?name=orig",
+                ImageBatchDownloader.toOriginalUrl("https://pbs.twimg.com/media/ABC123.jpg")
+        );
+        assertEquals(
+                "https://pbs.twimg.com/media/ABC123?format=jpg&name=orig",
+                ImageBatchDownloader.toOriginalUrl("https://pbs.twimg.com/media/ABC123?format=jpg&name=medium")
+        );
+        assertEquals(
+                "https://example.com/photo.png",
+                ImageBatchDownloader.toOriginalUrl("https://example.com/photo.png")
+        );
     }
 }

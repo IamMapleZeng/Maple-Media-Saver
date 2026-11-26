@@ -319,7 +319,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="14dp"
                             android:layout_weight="1"
-                            android:text="长按视频、点击“下载视频”（或在视频页菜单中下载）。"
+                            android:text="长按视频可点击“下载视频”，长按图片帖子可点击“下载全部图片”（图文混合帖子同时提供两个选项）。"
                             android:textAppearance="?attr/textAppearanceBodyMedium"
                             android:textColor="?attr/colorOnSurface" />
 
