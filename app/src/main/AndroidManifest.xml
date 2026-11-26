@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <queries><package android:name="com.twitter.android" /></queries>
-    <application android:label="XVideoSaver" android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher" android:theme="@android:style/Theme.Material.Light.NoActionBar" android:allowBackup="false" android:supportsRtl="true">
+    <application android:label="XVideoSaver" android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher" android:theme="@style/Theme.XVideoSaver" android:allowBackup="false" android:supportsRtl="true">
         <meta-data android:name="xposedmodule" android:value="true" />
         <meta-data android:name="xposeddescription" android:value="适配 X 12.46.1 的视频下载模块" />
         <meta-data android:name="xposedminversion" android:value="82" />

@@ -1,37 +1,108 @@
 package io.github.iammaplezeng.xvideosaver;
 
-import android.app.Activity;
+import android.content.pm.PackageInfo;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
-import android.widget.LinearLayout;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
+import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.color.DynamicColors;
+import com.google.android.material.color.MaterialColors;
 
-public final class MainActivity extends Activity {
-    @Override public void onCreate(Bundle state) {
+public final class MainActivity extends AppCompatActivity {
+    private static final String HOST_PACKAGE = "com.twitter.android";
+
+    private MaterialCardView statusCard;
+    private ImageView statusIcon;
+    private TextView statusTitle;
+    private TextView statusSubtitle;
+    private TextView moduleVersionValue;
+    private TextView hostVersionValue;
+    private TextView targetVersionValue;
+
+    @Override
+    protected void onCreate(Bundle state) {
+        DynamicColors.applyToActivityIfAvailable(this);
         super.onCreate(state);
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        int pad = (int) (24 * getResources().getDisplayMetrics().density);
-        layout.setPadding(pad, pad * 2, pad, pad);
-        TextView title = new TextView(this);
-        title.setText("XVideoSaver"); title.setTextSize(28); layout.addView(title);
+        EdgeToEdge.enable(this);
+        setContentView(R.layout.activity_main);
+
+        View appBar = findViewById(R.id.app_bar);
+        View contentContainer = findViewById(R.id.content_container);
+        final int initialBottomPadding = contentContainer.getPaddingBottom();
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.root_coordinator), (v, insets) -> {
+            Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            appBar.setPadding(bars.left, bars.top, bars.right, 0);
+            contentContainer.setPadding(
+                    contentContainer.getPaddingLeft(),
+                    contentContainer.getPaddingTop(),
+                    contentContainer.getPaddingRight(),
+                    initialBottomPadding + bars.bottom
+            );
+            return insets;
+        });
+
+        statusCard = findViewById(R.id.status_card);
+        statusIcon = findViewById(R.id.status_icon);
+        statusTitle = findViewById(R.id.status_title);
+        statusSubtitle = findViewById(R.id.status_subtitle);
+        moduleVersionValue = findViewById(R.id.value_module_version);
+        hostVersionValue = findViewById(R.id.value_host_version);
+        targetVersionValue = findViewById(R.id.value_target_version);
+
+        moduleVersionValue.setText(BuildConfig.VERSION_NAME);
+        targetVersionValue.setText(HostVersion.NAME);
+
+        refreshHostStatus();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshHostStatus();
+    }
+
+    private void refreshHostStatus() {
         String host;
+        boolean installed = false;
         boolean supported = false;
         try {
-            android.content.pm.PackageInfo info = getPackageManager().getPackageInfo("com.twitter.android", 0);
-            host = info.versionName;
+            PackageInfo info = getPackageManager().getPackageInfo(HOST_PACKAGE, 0);
+            installed = true;
+            host = info.versionName != null ? info.versionName : "未知版本";
             supported = HostVersion.supported(info.versionName, info.getLongVersionCode());
+        } catch (Exception e) {
+            host = "未检测到 X";
         }
-        catch (Exception e) { host = "未检测到 X"; }
-        TextView body = new TextView(this);
-        body.setTextSize(16);
-        body.setText("\n模块版本：" + BuildConfig.VERSION_NAME + "\n当前 X：" + host
-                + "\n适配版本：" + HostVersion.NAME
-                + (supported ? "\n版本匹配，仍需在 LSPosed 中启用。" : "\n版本不匹配，模块不会启用下载 Hook。")
-                + "\n\n安装后，在 LSPosed 中启用本模块，作用域只勾选 X。强行停止并重新打开 X，再长按视频、点击下载视频。"
-                + "\n\n模块是否加载成功请查看 LSPosed 日志，搜索 XVideoSaver。"
-                + "\n\n包名：" + BuildConfig.APPLICATION_ID);
-        layout.addView(body);
-        android.widget.ScrollView scroll = new android.widget.ScrollView(this);
-        scroll.addView(layout); setContentView(scroll);
+
+        hostVersionValue.setText(host);
+
+        int containerColor;
+        int onContainerColor;
+        if (supported) {
+            containerColor = MaterialColors.getColor(statusCard, com.google.android.material.R.attr.colorPrimaryContainer);
+            onContainerColor = MaterialColors.getColor(statusCard, com.google.android.material.R.attr.colorOnPrimaryContainer);
+            statusIcon.setImageResource(R.drawable.ic_status_check);
+            statusTitle.setText("版本已适配");
+            statusSubtitle.setText("版本匹配，仍需在 LSPosed 中启用。");
+        } else {
+            containerColor = MaterialColors.getColor(statusCard, com.google.android.material.R.attr.colorErrorContainer);
+            onContainerColor = MaterialColors.getColor(statusCard, com.google.android.material.R.attr.colorOnErrorContainer);
+            statusIcon.setImageResource(R.drawable.ic_status_warning);
+            statusTitle.setText(installed ? "版本不匹配" : "未检测到 X");
+            statusSubtitle.setText("版本不匹配，模块不会启用下载 Hook。");
+        }
+
+        statusCard.setCardBackgroundColor(containerColor);
+        statusIcon.setImageTintList(ColorStateList.valueOf(onContainerColor));
+        statusTitle.setTextColor(onContainerColor);
+        statusSubtitle.setTextColor(onContainerColor);
     }
 }

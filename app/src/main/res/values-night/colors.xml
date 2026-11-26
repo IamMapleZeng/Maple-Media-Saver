@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Material 3 Dark Tonal Palette (Emerald seed matching app icon) -->
+    <color name="md_theme_primary">#6CDBAC</color>
+    <color name="md_theme_onPrimary">#003826</color>
+    <color name="md_theme_primaryContainer">#005138</color>
+    <color name="md_theme_onPrimaryContainer">#89F8C7</color>
+    <color name="md_theme_secondary">#B3CCBE</color>
+    <color name="md_theme_onSecondary">#1F352A</color>
+    <color name="md_theme_secondaryContainer">#354B40</color>
+    <color name="md_theme_onSecondaryContainer">#CFE9D9</color>
+    <color name="md_theme_tertiary">#A5CCDF</color>
+    <color name="md_theme_onTertiary">#073543</color>
+    <color name="md_theme_tertiaryContainer">#244C5B</color>
+    <color name="md_theme_onTertiaryContainer">#C1E8FB</color>
+    <color name="md_theme_error">#FFB4AB</color>
+    <color name="md_theme_onError">#690005</color>
+    <color name="md_theme_errorContainer">#93000A</color>
+    <color name="md_theme_onErrorContainer">#FFDAD6</color>
+    <color name="md_theme_surface">#0F1512</color>
+    <color name="md_theme_onSurface">#DEE4DF</color>
+    <color name="md_theme_surfaceVariant">#404943</color>
+    <color name="md_theme_onSurfaceVariant">#C0C9C1</color>
+    <color name="md_theme_outline">#8A938C</color>
+    <color name="md_theme_outlineVariant">#404943</color>
+    <color name="md_theme_surfaceContainerLowest">#0A0F0D</color>
+    <color name="md_theme_surfaceContainerLow">#171D1A</color>
+    <color name="md_theme_surfaceContainer">#1B211E</color>
+    <color name="md_theme_surfaceContainerHigh">#252B28</color>
+    <color name="md_theme_surfaceContainerHighest">#303633</color>
+</resources>

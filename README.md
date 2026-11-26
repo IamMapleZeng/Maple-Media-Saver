@@ -4,9 +4,9 @@
 
 包名：`io.github.iammaplezeng.xvideosaver`
 
-当前版本：**v1.0.0**。
+当前版本：**v1.0.1**。
 
-[下载 APK](https://github.com/IamMapleZeng/XVideoSaver/releases/tag/v1.0.0)
+[下载 APK](https://github.com/IamMapleZeng/XVideoSaver/releases/tag/v1.0.1)
 
 此版本专门适配从用户连接的手机提取的 **X 12.46.1-prod.01，versionCode 312461001**。X 更新后版本校验不通过时不安装 Hook，需要重新分析适配。
 
@@ -23,7 +23,7 @@
 
 ## 安装
 
-1. 从 GitHub Releases 安装 `XVideoSaver-v1.0.0.apk`。
+1. 从 GitHub Releases 安装 `XVideoSaver-v1.0.1.apk`。
 2. 在 LSPosed 中启用“XVideoSaver”，作用域只勾选 X（`com.twitter.android`）。
 3. 在系统设置中强行停止 X，然后重新打开。
 4. 打开一个允许下载的视频，长按视频，点击原来的“下载视频”；也可以在视频页的菜单中下载。
