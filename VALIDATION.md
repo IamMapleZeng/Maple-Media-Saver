@@ -1,4 +1,16 @@
-# v1.2.0 验证记录
+# 版本验证记录
+
+## v1.2.1 图标与应用语言
+
+- 图标包含 X、Telegram、YouTube 与下载动作，使用 Android 原生矢量与自适应图标。
+- 新增应用语言卡片及选择菜单，AppCompatDelegate 对接系统应用语言，兼容自动保存。
+- 19 项单元测试全部通过；Release 构建、lintDebug 成功（0 errors / 26 warnings）。
+- APK 签名验证通过，已通过 adb install -r 覆盖安装到同一手机，版本 1.2.1 / 10201。
+- 在手机实际点击菜单，中文切换后系统应用语言为 zh-Hans、界面显示中文；强行停止并重开后仍保留中文。
+- 实际点击 English 后系统应用语言为 en、界面显示英文；点击 Follow system 后恢复空应用语言列表及系统语言界面。测试结束恢复用户原有的跟随系统状态。
+- 原 X/TG/YouTube 下载实现未改动；本次没有操作视频下载。
+
+## v1.2.0 历史验证记录
 
 日期：2026-11-26（Asia/Shanghai）。仓库基线为 `45856eb`，保留其完整提交历史；origin 为 `https://github.com/IamMapleZeng/X-TG-YT-Media-Saver.git`。
 

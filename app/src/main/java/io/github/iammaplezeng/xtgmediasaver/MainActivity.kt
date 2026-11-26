@@ -15,6 +15,7 @@ import com.google.android.material.card.MaterialCardView
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.materialswitch.MaterialSwitch
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.github.iammaplezeng.xtgmediasaver.youtube.YouTubeShareActivity
 import io.github.iammaplezeng.xtgmediasaver.youtube.YouTubeDownloadService
 
@@ -37,9 +38,22 @@ class MainActivity : AppCompatActivity() {
         }
         findViewById<TextView>(R.id.value_module_version).text = "v${BuildConfig.VERSION_NAME}"
         bindSwitches()
+        bindLanguageSetting()
         refreshStatuses()
     }
     override fun onResume() { super.onResume(); refreshStatuses() }
+
+    private fun bindLanguageSetting() {
+        val options = arrayOf(getString(R.string.language_system), getString(R.string.language_chinese), getString(R.string.language_english))
+        findViewById<TextView>(R.id.language_value).text = options[LanguageSettings.selectedIndex()]
+        findViewById<View>(R.id.button_language).setOnClickListener {
+            MaterialAlertDialogBuilder(this).setTitle(R.string.language_title)
+                .setSingleChoiceItems(options, LanguageSettings.selectedIndex()) { dialog, index ->
+                    dialog.dismiss()
+                    LanguageSettings.select(index)
+                }.setNegativeButton(android.R.string.cancel, null).show()
+        }
+    }
 
     private fun bindSwitches() {
         val xVideo = bindSwitch(R.id.switch_x_video, ModulePrefs.KEY_X_VIDEO)

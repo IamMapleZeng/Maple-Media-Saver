@@ -107,6 +107,8 @@
 
             </com.google.android.material.card.MaterialCardView>
 
+            <include layout="@layout/card_language" />
+
             <!-- Platform 1: X (Twitter) Configuration Card -->
             <com.google.android.material.card.MaterialCardView
                 style="?attr/materialCardViewFilledStyle"

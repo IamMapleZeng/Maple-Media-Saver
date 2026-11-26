@@ -2,7 +2,9 @@
 
 [简体中文](README.md) | **English**
 
-**v1.2.0 — X · Telegram · YouTube Media Downloader**
+**v1.2.1 — X · Telegram · YouTube Media Downloader**
+
+New three-platform launcher icon with a YouTube play symbol. The home screen now includes App language: 中文 / English / Follow system, with immediate updates and persistent selection.
 
 Incremental upgrade of XTGMediaSaver: all maintained Java business sources and tests migrated to Kotlin. The application ID, LSPosed entry class, X/Telegram hooks, settings, defaults and X photo path remain compatible.
 

@@ -2,7 +2,9 @@
 
 **简体中文** | [English](README_EN.md)
 
-版本 **v1.2.0**，在现有 XTGMediaSaver 上增量升级。应用包名保持 `io.github.iammaplezeng.xtgmediasaver`，保留原 Git 历史、配置键、用户数据与下载路径。
+版本 **v1.2.1**，在现有 XTGMediaSaver 上增量升级。应用包名保持 `io.github.iammaplezeng.xtgmediasaver`，保留原 Git 历史、配置键、用户数据与下载路径。
+
+v1.2.1 重做三平台图标，加入 YouTube 红色播放元素；首页顶部新增“应用语言”，支持中文、English、跟随系统。选择立即生效并保存，不修改手机系统语言或 X/Telegram 宿主设置。
 
 ## 功能与使用
 
