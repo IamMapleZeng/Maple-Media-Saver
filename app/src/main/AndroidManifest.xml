@@ -8,8 +8,11 @@
         <package android:name="com.twitter.android" />
         <package android:name="org.telegram.messenger" />
         <package android:name="com.google.android.youtube" />
+        <package android:name="io.github.iammaplezeng.xtgmediasaver" />
+        <package android:name="io.github.iammaplezeng.xtgytmediasaver" />
     </queries>
     <application
+        android:extractNativeLibs="true"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -17,11 +20,14 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/Theme.XTGMediaSaver">
-        <meta-data android:name="xposedmodule" android:value="true" />
+        <meta-data android:name="xposedmodule" android:value="${isXposedModule}" />
         <meta-data android:name="xposeddescription" android:value="@string/xposed_description" />
         <meta-data android:name="xposedminversion" android:value="82" />
         <meta-data android:name="xposedscope" android:resource="@array/xposed_scope" />
         <meta-data android:name="xposedsharedprefs" android:value="true" />
+        <provider android:name=".SettingsMigrationProvider"
+            android:authorities="${applicationId}.settings.migration"
+            android:enabled="${migrationBridgeEnabled}" android:exported="true" />
         <service android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
             android:enabled="false" android:exported="false">
             <meta-data android:name="autoStoreLocales" android:value="true" />

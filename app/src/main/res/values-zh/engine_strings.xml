@@ -1,0 +1,16 @@
+<resources>
+    <string name="yt_checking_hd">yt-dlp 正在查询更多清晰度，也可以先下载当前可用的视频。</string>
+    <string name="yt_hd_verification">当前仅有播放器提供的选项。yt-dlp 要求登录或真人验证；可在应用设置中导入自己的 YouTube 登录 Cookie 后重试，仍不保证能获取高清。</string>
+    <string name="yt_hd_unavailable">高清查询失败，可重试或下载当前播放器提供的视频。</string>
+    <string name="yt_engine_initializing">正在准备高清下载引擎…</string>
+    <string name="yt_engine_ready">高清引擎：yt-dlp %1$s · FFmpeg · QuickJS</string>
+    <string name="yt_engine_failed">高清引擎启动失败，可重新分享视频后重试。</string>
+    <string name="yt_cookie_title">YouTube 登录会话</string>
+    <string name="yt_cookie_help">可选：在浏览器正常登录自己的 YouTube 账号并完成验证后，选择导出的 Netscape 格式 cookies.txt。仅保留 youtube.com 的 Cookie，存入本应用私有目录，不进入备份或日志，仅供 yt-dlp 向 YouTube 请求使用；本应用不会读取其他应用的账号数据。Cookie 具有登录权限，请保护原文件，导入后移除共享存储中的副本。导入不保证能获取高清，使用账号访问 yt-dlp 可能影响该账号。清除仅对之后的请求生效，请先取消进行中的下载。</string>
+    <string name="yt_cookie_import">导入登录 Cookie</string>
+    <string name="yt_cookie_clear">清除会话</string>
+    <string name="yt_cookie_none">YouTube 登录会话：未导入（可选）</string>
+    <string name="yt_cookie_present">YouTube 登录会话：已导入，有效性将在请求时检查</string>
+    <string name="yt_cookie_imported">已导入。请重新分享视频，或重试高清查询。已有应用设置保持不变。</string>
+    <string name="yt_cookie_invalid">导入失败。请选择包含 youtube.com Cookie 的 Netscape 格式 cookies.txt，大小不超过 256 KB。</string>
+</resources>

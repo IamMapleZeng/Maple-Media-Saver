@@ -1,5 +1,19 @@
 # 版本验证记录
 
+## v1.3.0 yt-dlp、包名迁移与默认去广告
+
+- 新增 YtDlpRuntime、YtDlpFormats、YtDlpEngine、YouTubeCookieFile、YouTubeCookies；IO 协程执行元数据查询/传输，固定 yt-dlp 2026.11.23（校验 SHA-256）、QuickJS 与 FFmpeg 7.1.1。独立应用进程，不向宿主加载原生运行时。选择精确视频/音频 format ID，无转码合并为 MP4；MediaExtractor 检查容器与加密样本后才发布到 MediaStore。
+- 清晰度查询保留原生可用选项；下载采用不可变选择快照，避免异步列表更新改变用户的选项。进程组负责取消及超时清理。可选文件导入只保留 youtube.com 的 Netscape Cookie，存入私有且不备份的目录，支持清除，不自动读取宿主账号或记录凭据。
+- 真机在旧包和新包中均成功执行 yt-dlp --version、QuickJS JS 求值及 FFmpeg -version，日志确认三个运行时就绪。当前 YouTube 真实分享视频的匿名查询仍返回 VERIFICATION，确认窗实际回退到 360p；没有有效 Cookie 实测，**尚不能声明高清下载成功**。没有代替用户勾选下载许可或传输真实网络媒体。
+- 用户指定应用 ID 改为 `io.github.iammaplezeng.xtgytmediasaver`。源码 package/import、目录、namespace、Manifest 组件、ProGuard、测试与 xposed_init 一致迁移，入口为 `io.github.iammaplezeng.xtgytmediasaver.XTGMediaSaverModule`。全部自维护业务源码仍为 Kotlin，没有重复 Java/Kotlin 实现。
+- 包名变更需新应用安装。先以原签名覆盖旧包为迁移桥（旧包 xposedmodule=false），再安装新包。Provider 核对新包 UID 和相同签名，新包也核对旧包签名；ADB shell 未授权调用实际返回 SecurityException。新包启动日志实际出现 `[MIGRATION] previous package settings imported`，旧包未卸载/清除，原媒体路径不变。具体见 docs/PACKAGE_MIGRATION.md。
+- YouTube 去广告缺省值改为 true，UI 和 Hook 一致，显式保存的 false 保留。XMediaHook、TelegramMediaHook、DownloadScope、HostVersions 已与原提交规范化比对：除包名外一致，没有为集成下载引擎改写 X/TG 行为。
+- 43 项 JVM 测试通过，失败/错误 0；包含高清格式（1080p/4K）、双轨精确选择、DRM/资格限制、域名/ID 校验、选择快照和 Cookie 格式验证。Release、lintDebug、assembleDebugAndroidTest 构建通过；最终 lint 为 **0 errors / 30 warnings**。构建曾遇到 Windows classes.dex 文件占用，停止当前 Gradle daemon 后干净构建解决，没有跳过检查。
+- 最终 APK 签名验证通过，证书 SHA-256 沿用 `63928b7f98bdf60e3be741f8807bd6ae4370e2451ccb88f2b6f7e8446f6f2c62`。adb install -r 新包成功，MainActivity 冷启动成功；设备与 aapt 均确认 1.3.0 / 10300、新应用 ID、arm64-v8a。APK 大小 68,774,027 字节，SHA-256 `33a0e3293048eed86906d27526b0a33bf2232826d6bc3429b6d47ec436300e22`。
+- 用户回复“我稍后自己测试”，因此未继续操作手机。新包 LSPosed 启用/作用域和新入口加载待用户设置后验证；实际高清下载、合并文件的音画同步/画质/播放、Cookie 会话有效性和新包 X/TG 保存回归均待实测。AndroidTest APK 仅编译，没有重新尝试安装此前被手机策略拒绝的测试包。
+
+以下为历史版本记录，旧包名、默认值和限制描述属于相应历史版本。
+
 ## v1.2.8 分享入口顺序和颜色
 
 - 最终按用户要求放置为 Copy link → 下载视频 → Remix，新增 CopyLinkActionPlacement.kt，以原生 Copy link 视图为锚点，为新增操作留出空间，保留后续原生操作的点击处理，菜单分离时恢复原布局。
