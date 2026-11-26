@@ -33,7 +33,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".youtube.YouTubeShareActivity" android:exported="true"
-            android:launchMode="singleTop" android:label="@string/yt_download_video">
+            android:launchMode="singleTop" android:label="@string/yt_download_video" android:taskAffinity="" android:excludeFromRecents="true">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />

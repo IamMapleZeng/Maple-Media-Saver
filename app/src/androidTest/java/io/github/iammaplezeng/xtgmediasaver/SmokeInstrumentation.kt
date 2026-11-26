@@ -34,8 +34,8 @@ class SmokeInstrumentation : Instrumentation() {
                 check(targetContext.createConfigurationContext(configuration).getString(R.string.app_name) == name) { "Locale $tag" }
                 results.add("PASS locale=$tag")
             }
-            check(targetContext.resources.getStringArray(R.array.xposed_scope).toList() == listOf(HostVersions.X_PACKAGE, HostVersions.TG_PACKAGE))
-            results.add("PASS existing LSPosed scope unchanged")
+            check(targetContext.resources.getStringArray(R.array.xposed_scope).toList() == listOf(HostVersions.X_PACKAGE, HostVersions.TG_PACKAGE, HostVersions.YT_PACKAGE))
+            results.add("PASS original scopes preserved and YouTube added")
             val share = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, "https://youtu.be/abcdefgh_12")
             check(targetContext.packageManager.queryIntentActivities(share, 0).any { it.activityInfo.name.endsWith("YouTubeShareActivity") })
             results.add("PASS ACTION_SEND receiver resolvable")

@@ -39,4 +39,5 @@ internal object ModulePrefs {
     @JvmStatic fun isXVideoEnabled() = readFlag(KEY_X_ENABLED, true) && readFlag(KEY_X_VIDEO, true)
     @JvmStatic fun isXAllImagesEnabled() = readFlag(KEY_X_ENABLED, true) && readFlag(KEY_X_ALL_IMAGES, true)
     @JvmStatic fun isTelegramSaveRestrictedEnabled() = readFlag(KEY_TG_ENABLED, true) && readFlag(KEY_TG_SAVE_RESTRICTED, true)
+    @JvmStatic fun isYouTubeEnabled() = readFlag(KEY_YT_ENABLED, true)
 }

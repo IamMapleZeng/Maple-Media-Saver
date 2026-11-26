@@ -9,12 +9,14 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage
 class XTGMediaSaverModule : IXposedHookLoadPackage {
     private val xHook = XMediaHook()
     private val tgHook = TelegramMediaHook()
+    private val ytHook by lazy { io.github.iammaplezeng.xtgmediasaver.youtube.YouTubeMenuHook() }
     override fun handleLoadPackage(p: XC_LoadPackage.LoadPackageParam) {
         try {
             when {
                 p.packageName == BuildConfig.APPLICATION_ID -> hookSelfActivation(p.classLoader)
                 p.packageName == HostVersions.X_PACKAGE && p.processName == HostVersions.X_PACKAGE -> xHook.handleLoadPackage(p)
                 p.packageName == HostVersions.TG_PACKAGE && p.processName == HostVersions.TG_PACKAGE -> tgHook.handleLoadPackage(p)
+                p.packageName == HostVersions.YT_PACKAGE && p.processName == HostVersions.YT_PACKAGE -> ytHook.handleLoadPackage(p)
             }
         } catch (error: Throwable) { log("DISPATCH FAILED: ${error.javaClass.simpleName}") }
     }

@@ -12,19 +12,19 @@
     <string name="tg_save_title">受限群組/頻道儲存媒體</string>
     <string name="tg_save_subtitle">在禁止儲存的群組與頻道中顯示儲存圖片/影片選項</string>
     <string name="guide_title">使用說明</string>
-    <string name="guide_one">在 LSPosed 中啟用本模組，作用域勾選 X 和 Telegram；YouTube 標準分享功能獨立執行。</string>
+    <string name="guide_one">在 LSPosed 中啟用本模組，作用域勾選 X、Telegram 和 YouTube。</string>
     <string name="guide_two">強制停止並重新開啟 X 或 Telegram 使設定生效。</string>
-    <string name="guide_three">在 X 中長按媒體，在 Telegram 中使用原生儲存；YouTube 點選分享 → 更多 → 下載影片。</string>
+    <string name="guide_three">在 X 中長按媒體，在 Telegram 中使用原生儲存；YouTube 點選分享 → 下載影片。</string>
     <string name="module_active">LSPosed 已啟用</string>
     <string name="module_inactive">LSPosed 未啟用</string>
-    <string name="module_active_subtitle">可分別設定 X / Telegram Hook 與獨立的 YouTube 分享下載。</string>
-    <string name="module_inactive_subtitle">X / Telegram 需要在 LSPosed 中啟用；YouTube 系統分享功能無需啟用模組。</string>
+    <string name="module_active_subtitle">可分別設定 X / Telegram / YouTube 的媒體下載入口。</string>
+    <string name="module_inactive_subtitle">請在 LSPosed 啟用模組，作用域勾選 X / Telegram / YouTube。</string>
     <string name="not_installed">未安裝</string>
     <string name="version_matched">版本相符</string>
     <string name="version_mismatch">版本不符</string>
     <string name="yt_enabled_title">啟用 YouTube 下載</string>
-    <string name="yt_enabled_subtitle">使用系統分享目標，無需 YouTube Hook</string>
+    <string name="yt_enabled_subtitle">原生分享選單入口；請在 LSPosed 勾選 YouTube</string>
     <string name="yt_standard_share">標準分享</string>
-    <string name="yt_manage">開啟 YouTube 下載器</string>
+    <string name="yt_manage">開啟 YouTube</string>
     <string name="hook_diagnostics">版本相符不代表 Hook 已載入。請在 LSPosed 日誌中檢查 [X] / [TG] READY。</string>
 </resources>

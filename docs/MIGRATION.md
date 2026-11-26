@@ -1,5 +1,11 @@
 # v1.2.0 迁移计划与基线
 
+## 后续 v1.2.2–v1.2.3
+
+根据用户后续明确要求，将 YouTube 主入口从系统分享兼容方案升级为当前精确版本的原生分享面板 Hook，作用域新增 YouTube。通过 alsy 请求的 serializedSharedEntity 读取当前视频 ID，在原生 LinearLayout 面板追加下载项，不执行复制链接操作。X/TG 原实现与原作用域均保留。此前“不向 YouTube 安装 Hook”的描述仅为 v1.2.0 的历史方案，当前以此段为准。
+
+新增 SharedVideoEntity、YouTubeMenuHook、DownloadErrors；原生点击改用浮动确认窗与后台服务。当前真实下载被 YouTube 真人验证拦截，明确停止而不绕过。验证边界见 VALIDATION.md。
+
 基线：`45856eb`，完整克隆新仓库，origin 已为 `https://github.com/IamMapleZeng/X-TG-YT-Media-Saver.git`，保留原提交历史。
 
 1. 基线：原始 Java 工程的 8 项单元测试、Release 构建和 lintVital 通过。

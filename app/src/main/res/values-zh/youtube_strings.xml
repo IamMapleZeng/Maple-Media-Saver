@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="yt_download_video">下载视频</string>
-    <string name="yt_share_help">YouTube → 分享 → 更多 → 下载视频。经授权的视频以 MP4 保存到 Movies/X-TG-YT-Media-Saver。</string>
+    <string name="yt_share_help">YouTube → 分享 → 下载视频。当前视频会自动传入，确认下载许可后即可选择清晰度，无需复制粘贴。</string>
     <string name="yt_link">YouTube 视频链接</string>
     <string name="yt_permission">我已获得平台和权利人对下载此视频的许可。</string>
     <string name="yt_permission_required">请先确认下载许可。能够公开观看不代表获得了下载许可。</string>
@@ -27,4 +27,6 @@
     <string name="yt_interrupted">下载已中断或取消。请重试以重新获取视频链接。</string>
     <string name="yt_open_failed">未找到播放器或文件已被移除，请在 Movies 文件夹查看。</string>
     <string name="yt_disabled">YouTube 下载功能已在设置中关闭。</string>
+    <string name="yt_verification_required">YouTube 要求登录或真人验证，匿名下载已停止。不会读取账号或绕过验证。</string>
+    <string name="yt_parser_error">解析器暂不兼容此次视频响应，下载已停止。</string>
 </resources>

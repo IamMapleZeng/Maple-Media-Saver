@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity() {
         val youtube = findViewById<View>(R.id.button_youtube)
         val enabled = bindSwitch(R.id.switch_yt_enabled, ModulePrefs.KEY_YT_ENABLED) { youtube.isEnabled = it }
         youtube.isEnabled = enabled.isChecked
-        youtube.setOnClickListener { startActivity(Intent(this, YouTubeShareActivity::class.java)) }
+        youtube.setOnClickListener { packageManager.getLaunchIntentForPackage(HostVersions.YT_PACKAGE)?.let(::startActivity) }
     }
     private fun bindSwitch(id: Int, key: String, changed: (Boolean) -> Unit = {}): MaterialSwitch {
         return findViewById<MaterialSwitch>(id).apply {
@@ -107,8 +107,9 @@ class MainActivity : AppCompatActivity() {
     }
     private fun refreshYouTube() {
         val info = try { packageManager.getPackageInfo(HostVersions.YT_PACKAGE, 0) } catch (_: Exception) { null }
-        findViewById<TextView>(R.id.value_yt_version).text = "${info?.versionName ?: getString(R.string.not_installed)} / ${getString(R.string.yt_standard_share)}"
-        applyBadgeStyle(findViewById(R.id.badge_yt_status), getString(if (info != null) R.string.yt_standard_share else R.string.not_installed), info != null)
+        val matched = info?.versionName == HostVersions.YT_OBSERVED_NAME && info.longVersionCode == HostVersions.YT_OBSERVED_CODE
+        findViewById<TextView>(R.id.value_yt_version).text = "${info?.versionName ?: getString(R.string.not_installed)} / ${HostVersions.YT_OBSERVED_NAME}"
+        applyBadgeStyle(findViewById(R.id.badge_yt_status), getString(if (info == null) R.string.not_installed else if (matched) R.string.version_matched else R.string.version_mismatch), matched)
         val history = getSharedPreferences(YouTubeDownloadService.HISTORY, MODE_PRIVATE)
         findViewById<TextView>(R.id.yt_diagnostics).setText(when (history.getString("last_state", "")) {
             "failed" -> R.string.yt_network_error

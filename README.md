@@ -2,7 +2,9 @@
 
 **简体中文** | [English](README_EN.md)
 
-版本 **v1.2.1**，在现有 XTGMediaSaver 上增量升级。应用包名保持 `io.github.iammaplezeng.xtgmediasaver`，保留原 Git 历史、配置键、用户数据与下载路径。
+版本 **v1.2.3**，在现有 XTGMediaSaver 上增量升级。应用包名保持 `io.github.iammaplezeng.xtgmediasaver`，保留原 Git 历史、配置键、用户数据与下载路径。
+
+v1.2.2–1.2.3 新增 YouTube 原生分享面板内的“下载视频”，直接读取当前分享的视频 ID，不调用剪贴板。菜单文字跟随系统语言；点击后使用浮动确认窗，解析公开元数据、确认许可和清晰度后启动后台下载，随后关闭确认窗。需要在 LSPosed 作用域新增勾选 YouTube，并重启 YouTube。
 
 v1.2.1 重做三平台图标，加入 YouTube 红色播放元素；首页顶部新增“应用语言”，支持中文、English、跟随系统。选择立即生效并保存，不修改手机系统语言或 X/Telegram 宿主设置。
 
@@ -10,15 +12,15 @@ v1.2.1 重做三平台图标，加入 YouTube 红色播放元素；首页顶部�
 
 - **X**：保留原生视频/GIF 下载、全部图片批量保存、混合媒体菜单及设置；图片仍保存到 `Pictures/XTGMediaSaver`。
 - **Telegram**：保留原有消息菜单、PhotoViewer、六个方法与消息构造器 Hook、版本检查及设置。
-- **YouTube**：视频点击 **分享 → 更多（如出现）→ 下载视频**，确认下载许可，检查视频、选择可用 MP4 清晰度后下载。支持通知/页面进度、AVC/AAC 合并、取消、结果打开和失败重试；文件保存到 `Movies/X-TG-YT-Media-Saver`。也可在本应用 YouTube 卡片粘贴链接。
+- **YouTube**：视频点击 **分享 → 下载视频**，在浮动确认窗中选择可用 MP4 清晰度并确认许可后下载，无需复制粘贴。支持通知进度、AVC/AAC 合并、取消和失败重试；文件保存到 `Movies/X-TG-YT-Media-Saver`。
 
-X / Telegram 继续在 LSPosed 中启用并重启宿主；YouTube 采用标准 `ACTION_SEND/text/plain` 分享接收，在本应用独立下载，不向 YouTube 安装 Hook。不能保证下载入口始终位于 YouTube 第一层内部分享菜单。
+X / Telegram 继续保留原作用域。YouTube 21.47.483 使用新增的精确版本原生分享菜单 Hook，下载器在本应用后台服务中执行；标准 ACTION_SEND 接收作为兼容入口保留。
 
 | 平台 | 实际适配/观察版本 | 兼容策略 |
 | --- | --- | --- |
 | X / com.twitter.android | 12.46.1-prod.01 / 312461001 | 原精确版本保护 |
 | Telegram / org.telegram.messenger | 13.3.1 / 73461 | 原精确版本保护 |
-| YouTube / com.google.android.youtube | 21.47.483 / 1561317016（ADB 查询） | 标准分享协议，不依赖混淆类名 |
+| YouTube / com.google.android.youtube | 21.47.483 / 1561317016（ADB 查询） | 原生分享菜单精确适配；其他版本不安装此 Hook |
 
 ## Kotlin 与多语言
 
@@ -32,7 +34,7 @@ X / Telegram 继续在 LSPosed 中启用并重启宿主；YouTube 采用标准 `
 
 只处理用户已获得平台及权利人许可的内容。公开观看不等于下载授权，软件不能自动证明用户的法律授权，因此需要逐次确认。拒绝非公开、付费/会员、年龄限制、直播和加密媒体；不提供账号 cookie、登录或保护绕过。仅保存无保护 AVC 视频和 AAC 音频组成的 MP4，不强行转换其他编码/流协议。
 
-解析器固定 NewPipeExtractor v0.27.1。网络、平台反自动化检查或接口变化可能导致失败；失败时停止并提供重试，不进行限制绕过。
+解析器固定 NewPipeExtractor v0.27.1。网络、平台反自动化检查或接口变化可能导致失败；失败时停止并提供重试，不进行限制绕过。本次设备实际返回 LOGIN_REQUIRED / SignInConfirmNotBotException，要求登录确认非机器人；当前匿名解析因此不能完成下载。这个问题不应被描述为已经修复或下载已验收。
 
 ## 权限与兼容
 

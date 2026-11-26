@@ -2,10 +2,13 @@ package io.github.iammaplezeng.xtgmediasaver.youtube
 
 import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
+import android.view.Gravity
 import android.widget.ArrayAdapter
 import android.widget.LinearLayout
 import android.widget.ScrollView
@@ -39,22 +42,33 @@ class YouTubeShareActivity : AppCompatActivity() {
     private lateinit var download: MaterialButton
     private lateinit var cancel: MaterialButton
     private lateinit var open: MaterialButton
+    private lateinit var inputLayout: TextInputLayout
+    private var nativeShare = false
     private var displayed: VideoManifest? = null
-    private val notificationPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* UI also shows progress when permission is denied. */ }
+    private var pendingChoice: Int? = null
+    private val notificationPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+        pendingChoice?.let { choice -> pendingChoice = null; launchService(choice) }
+    }
     override fun onCreate(saved: Bundle?) {
+        nativeShare = intent.getBooleanExtra(YouTubeMenuHook.EXTRA_NATIVE_SHARE, false)
+        if (nativeShare) setTheme(R.style.Theme_XTGMediaSaver_Quick)
         DynamicColors.applyToActivityIfAvailable(this)
         super.onCreate(saved)
         val content = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
-        val pad = (24 * resources.displayMetrics.density).toInt()
+        val pad = ((if (nativeShare) 18 else 24) * resources.displayMetrics.density).toInt()
         content.setPadding(pad, pad, pad, pad)
         val scroll = ScrollView(this).apply { addView(content) }; setContentView(scroll)
-        ViewCompat.setOnApplyWindowInsetsListener(scroll) { _, insets ->
+        if (nativeShare) {
+            window.setLayout((resources.displayMetrics.widthPixels * .92).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
+            window.setGravity(Gravity.CENTER)
+        } else ViewCompat.setOnApplyWindowInsetsListener(scroll) { _, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             content.setPadding(pad + bars.left, pad + bars.top, pad + bars.right, pad + bars.bottom); insets
         }
         content.addView(TextView(this).apply { setText(R.string.yt_download_video); textSize = 26f })
         content.addView(TextView(this).apply { setText(R.string.yt_share_help); setPadding(0, pad / 2, 0, pad) })
         val input = TextInputLayout(this).apply { hint = getString(R.string.yt_link) }
+        inputLayout = input
         link = TextInputEditText(this).apply { inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_URI }
         input.addView(link); content.addView(input)
         permission = MaterialCheckBox(this).apply { setText(R.string.yt_permission) }; content.addView(permission)
@@ -68,24 +82,37 @@ class YouTubeShareActivity : AppCompatActivity() {
             startService(Intent(this@YouTubeShareActivity, YouTubeDownloadService::class.java).setAction(YouTubeDownloadService.ACTION_CANCEL))
         } }; content.addView(cancel)
         open = MaterialButton(this).apply { setText(R.string.yt_open); setOnClickListener { openResult() } }; content.addView(open)
+        if (nativeShare) content.addView(MaterialButton(this, null, com.google.android.material.R.attr.borderlessButtonStyle).apply {
+            setText(android.R.string.cancel); setOnClickListener { finish() }
+        })
         if (saved != null) { link.setText(saved.getString("link")); permission.isChecked = saved.getBoolean("permission") }
         else receive(intent)
+        nativeShare = intent.getBooleanExtra(YouTubeMenuHook.EXTRA_NATIVE_SHARE, false) && YouTubeLink.parse(link.text?.toString().orEmpty()) != null
+        if (nativeShare) inputLayout.visibility = View.GONE
+        // Native flow inspects public metadata immediately; permission is still mandatory before any media download.
+        if (nativeShare && saved == null && enabled()) YouTubeSession.inspect(link.text?.toString().orEmpty(), true)
         lifecycleScope.launch { repeatOnLifecycle(Lifecycle.State.STARTED) { YouTubeSession.state.collect { render(it) } } }
     }
     override fun onSaveInstanceState(out: Bundle) {
         out.putString("link", link.text?.toString()); out.putBoolean("permission", permission.isChecked); super.onSaveInstanceState(out)
     }
-    override fun onNewIntent(intent: Intent) { super.onNewIntent(intent); setIntent(intent); receive(intent) }
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent); setIntent(intent); receive(intent)
+        if (nativeShare && enabled()) YouTubeSession.inspect(link.text?.toString().orEmpty(), true)
+    }
     private fun receive(intent: Intent) {
         if (intent.action == Intent.ACTION_SEND) {
+            YouTubeSession.resetIncoming()
             link.setText(intent.getCharSequenceExtra(Intent.EXTRA_TEXT)?.toString().orEmpty())
+            nativeShare = intent.getBooleanExtra(YouTubeMenuHook.EXTRA_NATIVE_SHARE, false) && YouTubeLink.parse(link.text?.toString().orEmpty()) != null
+            inputLayout.visibility = if (nativeShare) View.GONE else View.VISIBLE
             permission.isChecked = false
         } else link.setText(getSharedPreferences(YouTubeDownloadService.HISTORY, MODE_PRIVATE).getString("last_link", ""))
     }
     private fun enabled() = ModulePrefs.openForUi(this).getBoolean(ModulePrefs.KEY_YT_ENABLED, true)
     private fun inspect() {
         if (!enabled()) { status.setText(R.string.yt_disabled); return }
-        if (!permission.isChecked) { status.setText(R.string.yt_permission_required); return }
+        if (!nativeShare && !permission.isChecked) { status.setText(R.string.yt_permission_required); return }
         val raw = link.text?.toString().orEmpty()
         getSharedPreferences(YouTubeDownloadService.HISTORY, MODE_PRIVATE).edit().putString("last_link", raw.take(16_384)).apply()
         YouTubeSession.inspect(raw, true)
@@ -94,12 +121,20 @@ class YouTubeShareActivity : AppCompatActivity() {
         if (!enabled() || !permission.isChecked) { status.setText(R.string.yt_permission_required); return }
         val ready = (YouTubeSession.state.value as? YouTubeState.Ready)?.manifest ?: return
         if (YouTubeLink.parse(link.text?.toString().orEmpty()) != ready.link) { inspect(); return }
-        if (Build.VERSION.SDK_INT >= 33) notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+        val choice = quality.selectedItemPosition
+        if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            pendingChoice = choice; notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS); return
+        }
+        launchService(choice)
+    }
+    private fun launchService(choice: Int) {
         try {
-            startForegroundService(Intent(this, YouTubeDownloadService::class.java).putExtra(YouTubeDownloadService.EXTRA_CHOICE, quality.selectedItemPosition))
+            startForegroundService(Intent(this, YouTubeDownloadService::class.java).putExtra(YouTubeDownloadService.EXTRA_CHOICE, choice))
         } catch (_: Exception) { YouTubeSession.update(YouTubeState.Failed(DownloadError.INTERRUPTED)) }
     }
     private fun render(state: YouTubeState) {
+        if (nativeShare && state is YouTubeState.Downloading) { finish(); return }
+        analyze.visibility = if (nativeShare && state !is YouTubeState.Failed) View.GONE else View.VISIBLE
         val busy = state is YouTubeState.Downloading || state is YouTubeState.Inspecting
         analyze.isEnabled = !busy; link.isEnabled = !busy; permission.isEnabled = !busy
         download.visibility = if (state is YouTubeState.Ready) View.VISIBLE else View.GONE
@@ -133,6 +168,8 @@ class YouTubeShareActivity : AppCompatActivity() {
                     DownloadError.STORAGE -> R.string.yt_storage_error
                     DownloadError.INTERRUPTED -> R.string.yt_interrupted
                     DownloadError.NETWORK -> R.string.yt_network_error
+                    DownloadError.VERIFICATION -> R.string.yt_verification_required
+                    DownloadError.PARSER -> R.string.yt_parser_error
                 })
             }
         }

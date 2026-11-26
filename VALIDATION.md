@@ -1,5 +1,15 @@
 # 版本验证记录
 
+## v1.2.3 原生 YouTube 菜单、浮动确认与错误分类
+
+- 真机日志已确认 `[YT] READY`、`share video captured`、`native download row added; parent=avpq` 和 `native download tap`，UI 层级实际存在 Download video。当前分享视频直接传入，无剪贴板读写。
+- 实际分享实体为 8420 字符 / 6310 字节，包含 field 1 的 11 字节视频 ID、field 12 的 6291 字节元数据和 field 20 varint。已修正原先 4096 字符限制，添加同尺寸回归测试。
+- 26 项单元测试通过；Release 构建和完整 lint 通过，0 errors / 29 warnings。
+- 浮动确认 UI 已在设备显示并自动检查公开元数据；随后修正 native 点击强制 NEW_TASK 导致的黑背景，改为解包宿主 Activity 在 YouTube 任务中打开。最终任务归属/背景效果待用户复核，不表述为已完成最终视觉验收。
+- APK 已成功覆盖安装（1.2.3 / 10203），v3 签名验证通过；YouTube 已重启载入新版。
+- 本次实际解析失败为 `SignInConfirmNotBotException` / `LOGIN_REQUIRED`，平台要求登录确认非机器人。已单独显示“登录或真人验证”提示，不再只显示笼统网络失败，也未实现任何登录、cookie 读取或验证绕过。
+- 实际网络媒体下载仍未通过验收，不能声称下载故障已经修复。X/TG 的原下载实现保持不变。
+
 ## v1.2.1 图标与应用语言
 
 - 图标包含 X、Telegram、YouTube 与下载动作，使用 Android 原生矢量与自适应图标。
