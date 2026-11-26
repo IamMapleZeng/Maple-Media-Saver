@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="version_summary">Installed / adapted version</string>
+    <string name="x_enabled_title">Enable X media downloads</string>
+    <string name="x_enabled_subtitle">Control all X download enhancements</string>
+    <string name="x_video_title">Video and GIF downloads</string>
+    <string name="x_video_subtitle">Native downloader in the timeline and video player</string>
+    <string name="x_images_title">Save all photos</string>
+    <string name="x_images_subtitle">Batch save image and mixed media posts</string>
+    <string name="tg_enabled_title">Enable Telegram media downloads</string>
+    <string name="tg_enabled_subtitle">Control Telegram download enhancements</string>
+    <string name="tg_save_title">Save media from restricted chats</string>
+    <string name="tg_save_subtitle">Show native save options in restricted groups and channels</string>
+    <string name="guide_title">Usage</string>
+    <string name="guide_one">Enable this module for X and Telegram in LSPosed. YouTube sharing works independently.</string>
+    <string name="guide_two">Force stop and reopen X or Telegram to apply changes.</string>
+    <string name="guide_three">Long press media in X, use native save in Telegram, or share a YouTube video to Download video.</string>
+    <string name="module_active">LSPosed activated</string>
+    <string name="module_inactive">LSPosed not activated</string>
+    <string name="module_active_subtitle">Configure X / Telegram hooks and independent YouTube downloads.</string>
+    <string name="module_inactive_subtitle">Enable LSPosed for X / Telegram. YouTube system sharing does not require it.</string>
+    <string name="not_installed">Not installed</string>
+    <string name="version_matched">Version matched</string>
+    <string name="version_mismatch">Version mismatch</string>
+    <string name="yt_enabled_title">Enable YouTube downloads</string>
+    <string name="yt_enabled_subtitle">Use the system share target; no YouTube hook required</string>
+    <string name="yt_standard_share">System share</string>
+    <string name="yt_manage">Open YouTube downloader</string>
+    <string name="hook_diagnostics">Version matching is not proof of loading. Check [X] / [TG] READY in LSPosed logs.</string>
+</resources>

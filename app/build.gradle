@@ -1,4 +1,4 @@
-plugins { id 'com.android.application' }
+plugins { id 'com.android.application'; id 'org.jetbrains.kotlin.android' }
 android {
     namespace 'io.github.iammaplezeng.xtgmediasaver'
     compileSdk 35
@@ -6,16 +6,28 @@ android {
         applicationId 'io.github.iammaplezeng.xtgmediasaver'
         minSdk 29
         targetSdk 35
-        versionCode 10100
-        versionName '1.1.0'
+        versionCode 10200
+        versionName '1.2.0'
+        testInstrumentationRunner 'io.github.iammaplezeng.xtgmediasaver.SmokeInstrumentation'
     }
     buildFeatures { buildConfig true }
-    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+    buildTypes { release { minifyEnabled false; proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro' } }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17
+        coreLibraryDesugaringEnabled true
+    }
+    kotlinOptions { jvmTarget = '17' }
+    packaging { resources { excludes += ['META-INF/DEPENDENCIES', 'META-INF/INDEX.LIST'] } }
 }
 dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'androidx.activity:activity:1.9.3'
     implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.7'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0'
+    implementation 'com.github.teamnewpipe:NewPipeExtractor:v0.27.1'
     compileOnly files('libs/xposed-api-82.jar')
     testImplementation 'junit:junit:4.13.2'
+    testRuntimeOnly files('libs/xposed-api-82.jar')
 }

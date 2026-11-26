@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="version_summary">当前版本 / 适配版本</string>
+    <string name="x_enabled_title">启用 X 媒体下载</string>
+    <string name="x_enabled_subtitle">控制 X 平台的全部下载增强功能</string>
+    <string name="x_video_title">视频与 GIF 下载</string>
+    <string name="x_video_subtitle">信息流长按与视频页直接调用原生下载器</string>
+    <string name="x_images_title">一键下载全部图片</string>
+    <string name="x_images_subtitle">长按多图或图文混合帖子显示全部保存选项</string>
+    <string name="tg_enabled_title">启用 Telegram 媒体下载</string>
+    <string name="tg_enabled_subtitle">控制 Telegram 平台的下载解锁功能</string>
+    <string name="tg_save_title">受限群组/频道保存媒体</string>
+    <string name="tg_save_subtitle">在禁止保存的群组与频道中显示保存图片/视频选项</string>
+    <string name="guide_title">使用说明</string>
+    <string name="guide_one">在 LSPosed 中启用本模块，作用域勾选 X 和 Telegram；YouTube 标准分享功能独立运行。</string>
+    <string name="guide_two">强行停止并重新打开 X 或 Telegram 使配置生效。</string>
+    <string name="guide_three">在 X 中长按媒体，在 Telegram 中使用原生保存；YouTube 点击分享 → 更多 → 下载视频。</string>
+    <string name="module_active">LSPosed 已激活</string>
+    <string name="module_inactive">LSPosed 未激活</string>
+    <string name="module_active_subtitle">可分别配置 X / Telegram Hook 与独立的 YouTube 分享下载。</string>
+    <string name="module_inactive_subtitle">X / Telegram 需要在 LSPosed 中启用；YouTube 系统分享功能无需激活模块。</string>
+    <string name="not_installed">未安装</string>
+    <string name="version_matched">版本匹配</string>
+    <string name="version_mismatch">版本不匹配</string>
+    <string name="yt_enabled_title">启用 YouTube 下载</string>
+    <string name="yt_enabled_subtitle">使用系统分享目标，无需 YouTube Hook</string>
+    <string name="yt_standard_share">标准分享</string>
+    <string name="yt_manage">打开 YouTube 下载器</string>
+    <string name="hook_diagnostics">版本匹配不代表 Hook 已加载。请在 LSPosed 日志中检查 [X] / [TG] READY。</string>
+</resources>

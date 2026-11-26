@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="yt_download_video">Download video</string>
+    <string name="yt_share_help">YouTube → Share → More → Download video. Saves an authorized MP4 to Movies/X-TG-YT-Media-Saver.</string>
+    <string name="yt_link">YouTube video link</string>
+    <string name="yt_permission">I have permission from the platform and rights holder to download this video.</string>
+    <string name="yt_permission_required">Confirm download permission before continuing. Public availability alone does not grant permission.</string>
+    <string name="yt_analyze">Check video</string>
+    <string name="yt_cancel">Cancel</string>
+    <string name="yt_open">Open saved video</string>
+    <string name="yt_retry">Retry</string>
+    <string name="yt_idle">Share or paste a YouTube video link.</string>
+    <string name="yt_inspecting">Checking availability and formats…</string>
+    <string name="yt_choose_quality">Choose an available MP4 quality.</string>
+    <string name="yt_channel">YouTube downloads</string>
+    <string name="yt_downloading">Starting download…</string>
+    <string name="yt_phase_video">Downloading video</string>
+    <string name="yt_phase_audio">Downloading audio</string>
+    <string name="yt_phase_merging">Combining audio and video</string>
+    <string name="yt_phase_saving">Saving to gallery</string>
+    <string name="yt_complete">Saved to Movies/X-TG-YT-Media-Saver.</string>
+    <string name="yt_invalid_link">Share one valid HTTPS YouTube video link (watch, Shorts or youtu.be).</string>
+    <string name="yt_restricted">This video is restricted, protected, unavailable or live. It will not be downloaded.</string>
+    <string name="yt_no_format">No supported unprotected AVC/AAC MP4 stream is available.</string>
+    <string name="yt_network_error">Network or YouTube parser failed. Check connectivity and retry; no access restrictions will be bypassed.</string>
+    <string name="yt_storage_error">Could not save the video. Check free storage and retry.</string>
+    <string name="yt_interrupted">Download was interrupted or cancelled. Retry to refresh the video links.</string>
+    <string name="yt_open_failed">No video viewer found, or the saved file was removed. Check the Movies folder.</string>
+    <string name="yt_disabled">YouTube downloading is disabled in app settings.</string>
+</resources>

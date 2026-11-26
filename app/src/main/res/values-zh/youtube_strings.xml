@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="yt_download_video">下载视频</string>
+    <string name="yt_share_help">YouTube → 分享 → 更多 → 下载视频。经授权的视频以 MP4 保存到 Movies/X-TG-YT-Media-Saver。</string>
+    <string name="yt_link">YouTube 视频链接</string>
+    <string name="yt_permission">我已获得平台和权利人对下载此视频的许可。</string>
+    <string name="yt_permission_required">请先确认下载许可。能够公开观看不代表获得了下载许可。</string>
+    <string name="yt_analyze">检查视频</string>
+    <string name="yt_cancel">取消</string>
+    <string name="yt_open">打开已保存的视频</string>
+    <string name="yt_retry">重试</string>
+    <string name="yt_idle">从 YouTube 分享视频，或粘贴视频链接。</string>
+    <string name="yt_inspecting">正在检查可用性与清晰度…</string>
+    <string name="yt_choose_quality">请选择可用的 MP4 清晰度。</string>
+    <string name="yt_channel">YouTube 下载</string>
+    <string name="yt_downloading">正在启动下载…</string>
+    <string name="yt_phase_video">正在下载视频</string>
+    <string name="yt_phase_audio">正在下载音频</string>
+    <string name="yt_phase_merging">正在合并音视频</string>
+    <string name="yt_phase_saving">正在保存到相册</string>
+    <string name="yt_complete">已保存到 Movies/X-TG-YT-Media-Saver。</string>
+    <string name="yt_invalid_link">请分享一个有效的 HTTPS YouTube 视频链接，支持 watch、Shorts 和 youtu.be。</string>
+    <string name="yt_restricted">此视频受限、受保护、不可用或正在直播，不进行下载。</string>
+    <string name="yt_no_format">没有可用的无保护 AVC/AAC MP4 格式。</string>
+    <string name="yt_network_error">网络或 YouTube 解析失败。请检查网络后重试；不会绕过访问限制。</string>
+    <string name="yt_storage_error">保存失败，请检查剩余存储空间后重试。</string>
+    <string name="yt_interrupted">下载已中断或取消。请重试以重新获取视频链接。</string>
+    <string name="yt_open_failed">未找到播放器或文件已被移除，请在 Movies 文件夹查看。</string>
+    <string name="yt_disabled">YouTube 下载功能已在设置中关闭。</string>
+</resources>

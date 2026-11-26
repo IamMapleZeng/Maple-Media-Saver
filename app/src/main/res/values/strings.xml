@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">XTG Media Saver</string>
-    <string name="xposed_description">Save photos and videos from X and Telegram.</string>
+    <string name="platform_x" translatable="false">X (Twitter)</string>
+    <string name="platform_telegram" translatable="false">Telegram</string>
+    <string name="platform_youtube" translatable="false">YouTube</string>
+    <string name="app_name">X TG YT Media Saver</string>
+    <string name="xposed_description">X · Telegram · YouTube Media Downloader</string>
 </resources>
