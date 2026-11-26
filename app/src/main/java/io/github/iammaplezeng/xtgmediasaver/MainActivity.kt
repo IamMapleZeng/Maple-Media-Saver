@@ -1,7 +1,6 @@
 package io.github.iammaplezeng.xtgmediasaver
 
 import android.content.SharedPreferences
-import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.View
@@ -16,7 +15,6 @@ import com.google.android.material.color.DynamicColors
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import io.github.iammaplezeng.xtgmediasaver.youtube.YouTubeShareActivity
 import io.github.iammaplezeng.xtgmediasaver.youtube.YouTubeDownloadService
 
 class MainActivity : AppCompatActivity() {
@@ -65,14 +63,12 @@ class MainActivity : AppCompatActivity() {
         val tgSave = bindSwitch(R.id.switch_tg_save_restricted, ModulePrefs.KEY_TG_SAVE_RESTRICTED)
         val tgEnabled = bindSwitch(R.id.switch_tg_enabled, ModulePrefs.KEY_TG_ENABLED) { tgSave.isEnabled = it }
         tgSave.isEnabled = tgEnabled.isChecked
-        val youtube = findViewById<View>(R.id.button_youtube)
-        val enabled = bindSwitch(R.id.switch_yt_enabled, ModulePrefs.KEY_YT_ENABLED) { youtube.isEnabled = it }
-        youtube.isEnabled = enabled.isChecked
-        youtube.setOnClickListener { packageManager.getLaunchIntentForPackage(HostVersions.YT_PACKAGE)?.let(::startActivity) }
+        bindSwitch(R.id.switch_yt_enabled, ModulePrefs.KEY_YT_ENABLED)
+        bindSwitch(R.id.switch_yt_ad_block, ModulePrefs.KEY_YT_AD_BLOCK, default = false)
     }
-    private fun bindSwitch(id: Int, key: String, changed: (Boolean) -> Unit = {}): MaterialSwitch {
+    private fun bindSwitch(id: Int, key: String, default: Boolean = true, changed: (Boolean) -> Unit = {}): MaterialSwitch {
         return findViewById<MaterialSwitch>(id).apply {
-            isChecked = prefs.getBoolean(key, true)
+            isChecked = prefs.getBoolean(key, default)
             setOnCheckedChangeListener { _, checked -> prefs.edit().putBoolean(key, checked).apply(); changed(checked) }
         }
     }

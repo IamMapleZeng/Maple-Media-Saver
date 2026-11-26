@@ -52,6 +52,8 @@ internal class YouTubeMenuHook {
                     if (info.versionName != HostVersions.YT_OBSERVED_NAME || info.longVersionCode != HostVersions.YT_OBSERVED_CODE) {
                         log("UNSUPPORTED native share adapter ${info.versionName}"); return
                     }
+                    try { YouTubeAdsHook.install(context.classLoader) }
+                    catch (error: Throwable) { log("ad filter unavailable ${error.javaClass.simpleName}") }
                     try { NativePlaybackCapture.install(context.classLoader) }
                     catch (error: Throwable) { log("native player observer unavailable ${error.javaClass.simpleName}") }
                     val request = Class.forName("alsy", false, context.classLoader)
@@ -87,6 +89,9 @@ internal class YouTubeMenuHook {
     private fun capture(encoded: String?) {
         val link = encoded?.let(SharedVideoEntity::videoLink)
         captured = link?.let { Capture(it, SystemClock.elapsedRealtime()) }
+        if (link != null && ModulePrefs.isYouTubeEnabled()) {
+            NativePlaybackCapture.prefetchInHost(link)
+        }
         log(if (link != null) "share video captured" else "share entity unavailable ${encoded?.let(SharedVideoEntity::layout)}")
     }
     private fun callbacks() = object : Application.ActivityLifecycleCallbacks {
@@ -142,22 +147,38 @@ internal class YouTubeMenuHook {
             setOnClickListener {
                 val active = captured
                 if (active?.link != capture.link || !ModulePrefs.isYouTubeEnabled()) return@setOnClickListener
-                try {
-                    val intent = Intent(Intent.ACTION_SEND).setType("text/plain").addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                        .setComponent(ComponentName(BuildConfig.APPLICATION_ID, "${BuildConfig.APPLICATION_ID}.youtube.YouTubeQuickActivity"))
-                        .putExtra(Intent.EXTRA_TEXT, capture.link).putExtra(EXTRA_NATIVE_SHARE, true)
-                    NativePlaybackCapture.forVideo(capture.link)?.let { intent.putExtra(NativePlaybackPayload.EXTRA, it) }
-                    var owner: Context = context
-                    while (owner is ContextWrapper && owner !is Activity && owner.baseContext !== owner) owner = owner.baseContext
-                    if (owner is Activity) owner.startActivity(intent)
-                    else context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-                    log("native download tap")
-                } catch (error: Throwable) { log("OPEN FAILED ${error.javaClass.simpleName}") }
+                if (NativePlaybackCapture.hasAdaptiveChoices(capture.link)) {
+                    openQuickDialog(context, capture.link, NativePlaybackCapture.forVideo(capture.link))
+                } else {
+                    isEnabled = false
+                    alpha = 0.6f
+                    NativePlaybackCapture.resolveAsyncForTap(capture.link, 5_500L) { bundle ->
+                        main.post {
+                            isEnabled = true
+                            alpha = 1f
+                            openQuickDialog(context, capture.link, bundle)
+                        }
+                    }
+                }
             }
         }
         // Keep the action above the host list: a footer can fall below the screen on tall sheets.
         parent.addView(row, parent.indexOfChild(list).coerceAtLeast(0), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(68)))
         log("native download row added; parent=${parent.javaClass.simpleName}")
+    }
+    private fun openQuickDialog(context: Context, link: String, playbackBundle: Bundle?) {
+        try {
+            val intent = Intent(Intent.ACTION_SEND).setType("text/plain").addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                .setComponent(ComponentName(BuildConfig.APPLICATION_ID, "${BuildConfig.APPLICATION_ID}.youtube.YouTubeQuickActivity"))
+                .putExtra(Intent.EXTRA_TEXT, link).putExtra(EXTRA_NATIVE_SHARE, true)
+            playbackBundle?.let { intent.putExtra(NativePlaybackPayload.EXTRA, it) }
+            NativePlaybackCapture.lastVisitorData?.let { intent.putExtra(NativePlaybackPayload.EXTRA_VISITOR, it) }
+            var owner: Context = context
+            while (owner is ContextWrapper && owner !is Activity && owner.baseContext !== owner) owner = owner.baseContext
+            if (owner is Activity) owner.startActivity(intent)
+            else context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            log("native download tap")
+        } catch (error: Throwable) { log("OPEN FAILED ${error.javaClass.simpleName}") }
     }
     private fun hasCopyAction(root: View): Boolean {
         if (root.contentDescription?.toString() in COPY_LABELS) return true

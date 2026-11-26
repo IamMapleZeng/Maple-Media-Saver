@@ -6,6 +6,7 @@ import java.net.URI
 /** Only bounded media metadata crosses processes; cookies and account headers never do. */
 internal object NativePlaybackPayload {
     const val EXTRA = "io.github.iammaplezeng.xtgmediasaver.NATIVE_PLAYBACK"
+    const val EXTRA_VISITOR = "io.github.iammaplezeng.xtgmediasaver.YT_VISITOR_DATA"
     fun encode(manifest: VideoManifest): Bundle {
         var budget = 60_000
         val choices = manifest.choices.take(20).takeWhile { choice ->

@@ -13,6 +13,7 @@ internal object ModulePrefs {
     const val KEY_TG_ENABLED = "tg_enabled"
     const val KEY_TG_SAVE_RESTRICTED = "tg_save_restricted_enabled"
     const val KEY_YT_ENABLED = "yt_enabled"
+    const val KEY_YT_AD_BLOCK = "yt_ad_block_enabled"
     @Volatile private var xPrefs: XSharedPreferences? = null
 
     @SuppressLint("WorldReadableFiles")
@@ -40,4 +41,5 @@ internal object ModulePrefs {
     @JvmStatic fun isXAllImagesEnabled() = readFlag(KEY_X_ENABLED, true) && readFlag(KEY_X_ALL_IMAGES, true)
     @JvmStatic fun isTelegramSaveRestrictedEnabled() = readFlag(KEY_TG_ENABLED, true) && readFlag(KEY_TG_SAVE_RESTRICTED, true)
     @JvmStatic fun isYouTubeEnabled() = readFlag(KEY_YT_ENABLED, true)
+    @JvmStatic fun isYouTubeAdBlockEnabled() = readFlag(KEY_YT_AD_BLOCK, false)
 }

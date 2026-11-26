@@ -12,6 +12,27 @@ import java.nio.ByteBuffer
 /** Copies AVC/AAC samples without re-encoding; protected samples are always rejected. */
 internal object Mp4Merger {
     private data class Track(val file: File, val source: Int, val target: Int)
+
+    fun validateProgressive(file: File) {
+        val extractor = MediaExtractor()
+        try {
+            extractor.setDataSource(file.absolutePath)
+            if (!extractor.psshInfo.isNullOrEmpty()) throw DownloadFailure(DownloadError.RESTRICTED)
+            var hasAvc = false
+            for (index in 0 until extractor.trackCount) {
+                val mime = extractor.getTrackFormat(index).getString(MediaFormat.KEY_MIME).orEmpty()
+                if (mime == "video/avc") {
+                    hasAvc = true
+                    extractor.selectTrack(index)
+                }
+            }
+            if (!hasAvc || extractor.sampleTime < 0L) throw DownloadFailure(DownloadError.NO_FORMAT)
+            if (extractor.sampleFlags and MediaExtractor.SAMPLE_FLAG_ENCRYPTED != 0) throw DownloadFailure(DownloadError.RESTRICTED)
+        } finally {
+            extractor.release()
+        }
+    }
+
     suspend fun merge(inputs: List<File>, output: File, audioRequired: Boolean) {
         val muxer = MediaMuxer(output.absolutePath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
         val tracks = ArrayList<Track>()
@@ -57,8 +78,15 @@ internal object Mp4Merger {
                         val read = extractor.readSampleData(buffer, 0)
                         if (read < 0) break
                         val time = extractor.sampleTime
-                        if (time < lastTime) throw DownloadFailure(DownloadError.NO_FORMAT)
-                        info.set(0, read, time, if (extractor.sampleFlags and MediaExtractor.SAMPLE_FLAG_SYNC != 0) MediaCodec.BUFFER_FLAG_KEY_FRAME else 0)
+                        if (time < 0L) break
+                        var flags = 0
+                        if (extractor.sampleFlags and MediaExtractor.SAMPLE_FLAG_SYNC != 0) {
+                            flags = flags or MediaCodec.BUFFER_FLAG_KEY_FRAME
+                        }
+                        if (extractor.sampleFlags and MediaExtractor.SAMPLE_FLAG_PARTIAL_FRAME != 0) {
+                            flags = flags or MediaCodec.BUFFER_FLAG_PARTIAL_FRAME
+                        }
+                        info.set(0, read, time, flags)
                         muxer.writeSampleData(track.target, buffer, info)
                         lastTime = time; samples++; extractor.advance()
                     }

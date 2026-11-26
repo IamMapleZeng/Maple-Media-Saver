@@ -2,7 +2,11 @@
 
 [简体中文](README.md) | **English**
 
-**v1.2.4 — X · Telegram · YouTube Media Downloader**
+**v1.2.6 — X · Telegram · YouTube Media Downloader**
+
+YouTube now has an independent Block video ads switch, off by default for new settings. Restart YouTube after changing it. Device testing confirmed player ad-slot filtering and normal playback; sponsored feed cards and creator sponsorships are outside its scope. The card matches X/Telegram styling and no longer includes Open YouTube.
+
+HD work fixes module-request caching, a client-protobuf field number, and in-flight cleanup, updates public client profiles, and stops repeated legacy VR requests. **HD downloading remains unresolved on the target device:** adaptive formats lack direct URLs, supplementary extraction requires human verification, and the tested selector still has one low-resolution MP4 option. See [validation](VALIDATION.md).
 
 The verified YouTube 21.47.483 adapter now adds Download video directly to the native share sheet, reads the current shared video ID without clipboard operations, and opens a floating confirmation window. Enable the YouTube LSPosed scope and restart YouTube. The label follows the system language. Downloads run in the module app foreground service after explicit permission confirmation.
 

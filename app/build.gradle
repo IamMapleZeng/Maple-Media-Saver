@@ -6,8 +6,8 @@ android {
         applicationId 'io.github.iammaplezeng.xtgmediasaver'
         minSdk 29
         targetSdk 35
-        versionCode 10204
-        versionName '1.2.4'
+        versionCode 10206
+        versionName '1.2.6'
         testInstrumentationRunner 'io.github.iammaplezeng.xtgmediasaver.SmokeInstrumentation'
     }
     buildFeatures { buildConfig true }

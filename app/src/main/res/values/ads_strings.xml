@@ -1,0 +1,4 @@
+<resources>
+    <string name="yt_ad_block_title">Block video ads</string>
+    <string name="yt_ad_block_subtitle">Filter player ad slots. Restart YouTube after changing this setting.</string>
+</resources>

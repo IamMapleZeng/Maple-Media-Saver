@@ -1,26 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto" style="?attr/materialCardViewFilledStyle"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="?attr/materialCardViewFilledStyle"
     android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp"
     app:cardBackgroundColor="?attr/colorSurfaceContainerLow" app:cardCornerRadius="24dp" app:cardElevation="0dp">
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
-            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/platform_youtube"
-                android:textAppearance="?attr/textAppearanceTitleMedium" android:textColor="?attr/colorPrimary" android:textStyle="bold" />
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:paddingVertical="16dp">
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:gravity="center_vertical" android:orientation="horizontal"
+            android:paddingHorizontal="20dp" android:paddingBottom="10dp">
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                android:text="@string/platform_youtube" android:textAppearance="?attr/textAppearanceTitleMedium"
+                android:textColor="?attr/colorPrimary" android:textStyle="bold" />
             <TextView android:id="@+id/badge_yt_status" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:background="@drawable/bg_status_pill" android:paddingHorizontal="12dp" android:paddingVertical="4dp" android:textAppearance="?attr/textAppearanceLabelMedium" />
+                android:background="@drawable/bg_status_pill" android:paddingHorizontal="12dp" android:paddingVertical="4dp"
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
         </LinearLayout>
-        <TextView android:id="@+id/value_yt_version" android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:paddingVertical="12dp" android:textAppearance="?attr/textAppearanceBodySmall" />
-        <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_yt_enabled"
-            android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/yt_enabled_title" />
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/yt_enabled_subtitle"
-            android:textAppearance="?attr/textAppearanceBodySmall" android:textColor="?attr/colorOnSurfaceVariant" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/button_youtube" android:layout_width="match_parent"
-            android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="@string/yt_manage" />
-        <TextView android:id="@+id/yt_diagnostics" android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:textAppearance="?attr/textAppearanceBodySmall" android:textColor="?attr/colorOnSurfaceVariant" />
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp"
-            android:text="@string/hook_diagnostics" android:textAppearance="?attr/textAppearanceBodySmall" android:textColor="?attr/colorOnSurfaceVariant" />
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:gravity="center_vertical" android:orientation="horizontal"
+            android:paddingHorizontal="20dp" android:paddingVertical="8dp">
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                android:text="@string/version_summary" android:textAppearance="?attr/textAppearanceBodyMedium"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+            <TextView android:id="@+id/value_yt_version" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textAppearance="?attr/textAppearanceBodySmall" android:textColor="?attr/colorOnSurfaceVariant" />
+        </LinearLayout>
+
+        <com.google.android.material.divider.MaterialDivider android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_marginTop="4dp"
+            app:dividerInsetEnd="20dp" app:dividerInsetStart="20dp" />
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:gravity="center_vertical" android:orientation="horizontal"
+            android:paddingHorizontal="20dp" android:paddingVertical="10dp">
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                android:orientation="vertical" android:paddingEnd="12dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/yt_enabled_title" android:textAppearance="?attr/textAppearanceBodyLarge"
+                    android:textColor="?attr/colorOnSurface" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/yt_enabled_subtitle" android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+            </LinearLayout>
+            <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_yt_enabled"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:contentDescription="@string/yt_enabled_title" />
+        </LinearLayout>
+
+        <com.google.android.material.divider.MaterialDivider android:layout_width="match_parent"
+            android:layout_height="wrap_content" app:dividerInsetEnd="20dp" app:dividerInsetStart="20dp" />
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:gravity="center_vertical" android:orientation="horizontal"
+            android:paddingHorizontal="20dp" android:paddingVertical="10dp">
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                android:orientation="vertical" android:paddingEnd="12dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/yt_ad_block_title" android:textAppearance="?attr/textAppearanceBodyLarge"
+                    android:textColor="?attr/colorOnSurface" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/yt_ad_block_subtitle" android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+            </LinearLayout>
+            <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/switch_yt_ad_block"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:contentDescription="@string/yt_ad_block_title" />
+        </LinearLayout>
+
+        <com.google.android.material.divider.MaterialDivider android:layout_width="match_parent"
+            android:layout_height="wrap_content" app:dividerInsetEnd="20dp" app:dividerInsetStart="20dp" />
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:paddingHorizontal="20dp" android:paddingTop="10dp">
+            <TextView android:id="@+id/yt_diagnostics" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:textAppearance="?attr/textAppearanceBodySmall" android:textColor="?attr/colorOnSurfaceVariant" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp"
+                android:text="@string/hook_diagnostics" android:textAppearance="?attr/textAppearanceBodySmall"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+        </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

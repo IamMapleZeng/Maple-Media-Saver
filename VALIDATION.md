@@ -1,5 +1,15 @@
 # 版本验证记录
 
+## v1.2.6 视频广告开关与高清请求修正
+
+- ADB 确认 YouTube 21.47.483 / 1561317016。新增广告 Hook 位于精确版本保护后，独立异常隔离，未修改 X/TG 源码。
+- 新增配置 yt_ad_block_enabled，默认 false；三套语言资源和 YouTube 卡片显示独立开关。手机实际开启并重启后，日志显示 `[YT ADS] READY ... enabled=true`，实际播放时出现 `player ad slots filtered`，截图确认正常播放。只复制响应并清除已验证的 PlayerResponse.n 广告位列表，不更改会员状态或原始媒体字段。Sponsored 推荐卡片仍可见，不声称全广告过滤。
+- 修复模块自建请求沿用宿主缓存策略、客户端字符串字段 108 误写为消息字段 109、CompletableFuture 完成过快时清理竞争及潜在不可变请求头 Map 写入问题。实际宿主 proto 自检通过，观察到备用请求 `serialized ... changed=true`，但旧 VR 路径仍失败；最终已停止自动调用，更新公共解析客户端配置。请求成功不等于高清下载成功。
+- 最终真机分享入口、视频标题及低清格式显示正常；测试视频实际显示 `320p · MP4`（画面比例对应的尺寸），65 个 adaptive 格式没有直接地址，adapUrls=0、audio=false。补充解析最终为 SignInConfirmNotBotException / LOGIN_REQUIRED。**高清仍未解决，未验证到 720p/1080p/4K 下载。**
+- 33 项 JVM 单元测试通过，含新增广告列表复制、原对象与媒体字段保留测试；Release 和 lintDebug 成功，0 errors / 32 warnings。未重试此前设备拒绝的 AndroidTest 包安装。
+- 最终 APK 签名验证通过，已 adb install -r 覆盖安装 1.2.6 / 10206 并重新启动 YouTube；本机去广告开关保持开启。未代替用户确认下载许可或执行网络媒体下载。
+- 新增 PlayerAdSlots.kt、YouTubeAdsHook.kt、PlayerAdSlotsTest.kt 和三套 ads_strings.xml；其他改动为 YouTube 卡片、配置及高清请求链路的增量修正。
+
 ## v1.2.4 官方播放器响应与原生会话
 
 - ADB 确认 YouTube 仍为 21.47.483 / 1561317016。基于该 APK 的 `allq(bhsp)` 构造器观察官方成功播放响应，未修改宿主返回值、未执行额外登录请求、未读取 cookie / OAuth / 密码。

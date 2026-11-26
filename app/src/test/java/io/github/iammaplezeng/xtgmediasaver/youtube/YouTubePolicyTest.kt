@@ -36,4 +36,28 @@ class YouTubePolicyTest {
             AccessFacts(true, 0, true, false, false), AccessFacts(true, 0, false, true, false), AccessFacts(true, 0, false, false, true))
             .forEach { assertFalse(DownloadPolicy.allowed(it, true)) }
     }
+    @Test fun mediaUserAgentMatchesSignedClientParameter() {
+        assertEquals(YouTubeNetwork.VR_USER_AGENT, YouTubeNetwork.userAgentForMediaUrl("https://rr1.googlevideo.com/videoplayback?id=1&c=ANDROID_VR&itag=137"))
+        assertEquals(YouTubeNetwork.ANDROID_USER_AGENT, YouTubeNetwork.userAgentForMediaUrl("https://rr1.googlevideo.com/videoplayback?id=1&c=ANDROID&itag=18"))
+        assertEquals(YouTubeNetwork.IOS_USER_AGENT, YouTubeNetwork.userAgentForMediaUrl("https://rr1.googlevideo.com/videoplayback?id=1&c=IOS&itag=137"))
+        assertEquals(YouTubeNetwork.IOS_PRODUCER_USER_AGENT, YouTubeNetwork.userAgentForMediaUrl("https://rr1.googlevideo.com/videoplayback?id=1&c=IOS_PRODUCER&itag=137"))
+        assertEquals(YouTubeNetwork.VISIONOS_USER_AGENT, YouTubeNetwork.userAgentForMediaUrl("https://rr1.googlevideo.com/videoplayback?id=1&c=VISIONOS&itag=137"))
+        assertEquals(YouTubeNetwork.USER_AGENT, YouTubeNetwork.userAgentForMediaUrl("https://rr1.googlevideo.com/videoplayback?id=1&c=WEB&itag=18"))
+    }
+    @Test fun botVerificationClassificationDistinguishesBotCheckFromRestrictedContent() {
+        assertTrue(YouTubeResolver.isBotVerificationFailure("LOGIN_REQUIRED", "Sign in to confirm you\u2019re not a bot"))
+        assertTrue(YouTubeResolver.isBotVerificationFailure("UNPLAYABLE", "Sign in to confirm you\u2019re not a bot"))
+        assertTrue(YouTubeResolver.isBotVerificationFailure("LOGIN_REQUIRED", "登入以確認你不是機器人"))
+        assertFalse(YouTubeResolver.isBotVerificationFailure("LOGIN_REQUIRED", "Sign in to confirm your age. This video may be inappropriate for some users."))
+        assertFalse(YouTubeResolver.isBotVerificationFailure("UNPLAYABLE", "Join this channel to get access to members-only content"))
+    }
+    @Test fun vrClientProtoBytesEncodeExpectedWireFields() {
+        val bytes = NativePlaybackCapture.buildVrClientInfoBytes("en", "US", "rollout_tok")
+        assertTrue(bytes.isNotEmpty())
+        val text = String(bytes, Charsets.ISO_8859_1)
+        assertTrue(text.contains("Oculus"))
+        assertTrue(text.contains("Quest 3"))
+        assertTrue(text.contains("1.60.19"))
+        assertTrue(text.contains("rollout_tok"))
+    }
 }

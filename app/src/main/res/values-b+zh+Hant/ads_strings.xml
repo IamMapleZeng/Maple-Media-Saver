@@ -1,0 +1,4 @@
+<resources>
+    <string name="yt_ad_block_title">移除影片廣告</string>
+    <string name="yt_ad_block_subtitle">過濾播放器廣告版位，切換後請重新啟動 YouTube。</string>
+</resources>

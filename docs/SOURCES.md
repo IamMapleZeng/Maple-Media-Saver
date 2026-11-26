@@ -1,5 +1,7 @@
 # 对应源码
 
+v1.2.6 公共客户端配置参考 yt-dlp 上游的配置事实（未引入其 Python 业务源码或运行时）：https://github.com/yt-dlp/yt-dlp/blob/master/yt_dlp/extractor/youtube/_base.py 。已停止自动请求旧 VR 路径；这些配置不保证平台始终返回可下载格式。
+
 交付源码包含所有自维护 Kotlin 源码、资源、构建脚本、单元测试、真机测试和本次变更文档。保留原提交历史。不包含用户账号、宿主 APK、本机 SDK 和签名私钥。
 
 NewPipeExtractor v0.27.1 未修改，GPL-3.0-or-later，准确提交 `6ce85c1af05bbb854bae73f8936fd9f75bb8f9e1`。
