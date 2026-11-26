@@ -30,7 +30,25 @@ public final class XVideoSaverModule implements IXposedHookLoadPackage {
 
     private static void log(String message) { XposedBridge.log("[XVideoSaver] " + message); }
 
+    private static void hookSelfActivation(ClassLoader loader) {
+        try {
+            Class<?> statusClass = Class.forName(ModuleStatus.class.getName(), false, loader);
+            Method isActivated = statusClass.getDeclaredMethod("isActivated");
+            XposedBridge.hookMethod(isActivated, new XC_MethodHook() {
+                @Override protected void beforeHookedMethod(MethodHookParam param) {
+                    param.setResult(true);
+                }
+            });
+        } catch (Throwable error) {
+            log("SELF HOOK FAILED: " + error.getClass().getSimpleName());
+        }
+    }
+
     @Override public void handleLoadPackage(XC_LoadPackage.LoadPackageParam p) throws Throwable {
+        if (BuildConfig.APPLICATION_ID.equals(p.packageName)) {
+            hookSelfActivation(p.classLoader);
+            return;
+        }
         if (!HOST.equals(p.packageName) || !HOST.equals(p.processName)) return;
         log("loaded module=" + BuildConfig.VERSION_NAME);
         Method attach = Application.class.getDeclaredMethod("attach", Context.class);

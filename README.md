@@ -10,26 +10,34 @@
 
 此版本专门适配从用户连接的手机提取的 **X 12.46.1-prod.01，versionCode 312461001**。X 更新后版本校验不通过时不安装 Hook，需要重新分析适配。
 
+## 功能
+
+- **视频 / GIF 下载**：保留 X 原有的长按菜单和原生下载器，在下载视频或 GIF 时自动通过本地会员检查（支持信息流长按与视频页下载）。
+- **图片帖子一键下载全部图片**：长按图片帖子时，在原生 `Save Photo` / 保存图片选项下方新增“下载全部图片”（英文系统下显示为 `Save All Photo`，选项语言跟随系统语言），点击后自动批量下载该帖子内的全部原图并保存至相册 `Pictures/XVideoSaver`。
+- **图文混合帖子双选项**：同时包含图片和视频的帖子，长按菜单中会同时提供“下载视频”与“下载全部图片”两个选项；纯图片帖子则只提供图片保存选项，不出现“下载视频”。
+
 ## 实现
 
-保留 X 原有的长按菜单和下载器。仅在以下两个下载事件同步执行期间，针对当前线程，让本地会员检查通过：
+保留 X 原有的长按菜单和原生视频下载器。
 
-- 信息流长按菜单保存视频或 GIF：`com.x.urt.items.post.m5.invoke(Object)`，事件 `com.x.urt.items.post.y4`，媒体为 `com.x.models.y4` 或 `com.x.models.r4`。
-- 视频页下载：`com.x.video.tab.n0.i(com.x.video.tab.d9)`，事件 `com.x.video.tab.j8`。
+1. **视频 / GIF 下载**：仅在以下两个下载事件同步执行期间，针对当前线程，让本地会员检查通过：
+   - 信息流长按菜单保存视频或 GIF：`com.x.urt.items.post.m5.invoke(Object)`，事件 `com.x.urt.items.post.y4`，媒体为 `com.x.models.y4` 或 `com.x.models.r4`。
+   - 视频页下载：`com.x.video.tab.n0.i(com.x.video.tab.d9)`，事件 `com.x.video.tab.j8`。
+   - 会员谓词为 `com.x.subscriptions.a0.g(): boolean`。事件执行结束（包括抛出异常）时恢复线程状态，其他事件和其他线程保持原结果。视频的清晰度选择、文件命名和保存目录由 X 原生下载器决定。
+2. **图片帖子批量下载**：在长按媒体触发 `com.x.urt.items.post.m4` 时读取当前帖子的全部媒体列表（`com.x.models.v5.g()`），并在 `com.x.ui.common.sheets.h.b(...)` 渲染底部菜单时按帖子媒体类型注入本地化的“下载全部图片 / Save All Photo”项（图文混合帖子同时确保存在“下载视频”项）。点击后在后台请求原图（`name=orig`）并通过 `MediaStore` 保存至 `Pictures/XVideoSaver`。
 
-会员谓词为 `com.x.subscriptions.a0.g(): boolean`。事件执行结束（包括抛出异常）时恢复线程状态。其他事件和其他线程保持原结果。模块只在 X 主进程加载，不包含网络上传、账号读取、后台服务或额外权限。
-
-下载地址选择、文件命名、下载进度和保存目录由此版本的 X 原生下载器决定；模块不承诺具体清晰度或保存目录。不提供独立下载器或 HLS 合并实现。
+模块只在 X 主进程加载，不包含网络上传、账号读取、后台服务或额外权限。
 
 ## 安装
 
 1. 从 GitHub Releases 安装 `XVideoSaver-v1.0.2.apk`。
 2. 在 LSPosed 中启用“XVideoSaver”，作用域只勾选 X（`com.twitter.android`）。
 3. 在系统设置中强行停止 X，然后重新打开。
-4. 打开一个允许下载的视频，长按视频，点击原来的“下载视频”；也可以在视频页的菜单中下载。
-5. 检查下载完成提示，并实际播放保存的文件确认视频和声音。
+4. **下载视频 / GIF**：长按视频点击“下载视频”，或在视频页菜单中下载。
+5. **下载全部图片**：长按图片帖子，点击 `Save Photo` 下方的“下载全部图片 / Save All Photo”（图文混合帖子会同时显示“下载视频”和“下载全部图片”），图片会自动保存至相册 `Pictures/XVideoSaver`。
+6. 检查下载完成提示，并确认视频/图片已正常保存。
 
-不要把“版本匹配”当作 Hook 已加载证明。LSPosed 日志中应出现 `[XVideoSaver] READY`；点击时应出现 `download tap=long-press` 或 `download tap=player`，随后出现 `download eligibility applied`。模块不记录账号、视频链接和视频内容。
+不要把“版本匹配”当作 Hook 已加载证明。LSPosed 日志中应出现 `[XVideoSaver] READY`；点击视频下载时应出现 `download tap=long-press` 或 `download tap=player` 及 `download eligibility applied`，点击批量下载图片时应出现 `download tap=all-images`。模块不记录账号、媒体链接和内容。
 
 ## 验证边界
 

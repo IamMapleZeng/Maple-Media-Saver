@@ -22,6 +22,7 @@ public final class MainActivity extends AppCompatActivity {
     private ImageView statusIcon;
     private TextView statusTitle;
     private TextView statusSubtitle;
+    private TextView moduleStatusValue;
     private TextView moduleVersionValue;
     private TextView hostVersionValue;
     private TextView targetVersionValue;
@@ -53,6 +54,7 @@ public final class MainActivity extends AppCompatActivity {
         statusIcon = findViewById(R.id.status_icon);
         statusTitle = findViewById(R.id.status_title);
         statusSubtitle = findViewById(R.id.status_subtitle);
+        moduleStatusValue = findViewById(R.id.value_module_status);
         moduleVersionValue = findViewById(R.id.value_module_version);
         hostVersionValue = findViewById(R.id.value_host_version);
         targetVersionValue = findViewById(R.id.value_target_version);
@@ -82,22 +84,34 @@ public final class MainActivity extends AppCompatActivity {
             host = "未检测到 X";
         }
 
+        boolean activated = ModuleStatus.isActivated();
+        moduleStatusValue.setText(activated ? "已激活" : "未激活");
         hostVersionValue.setText(host);
 
         int containerColor;
         int onContainerColor;
-        if (supported) {
+        if (activated && supported) {
             containerColor = MaterialColors.getColor(statusCard, com.google.android.material.R.attr.colorPrimaryContainer);
             onContainerColor = MaterialColors.getColor(statusCard, com.google.android.material.R.attr.colorOnPrimaryContainer);
             statusIcon.setImageResource(R.drawable.ic_status_check);
-            statusTitle.setText("版本已适配");
-            statusSubtitle.setText("版本匹配，仍需在 LSPosed 中启用。");
+            statusTitle.setText("模块已激活 · 版本已适配");
+            statusSubtitle.setText("已在 LSPosed 中激活，长按视频或图片即可下载。");
+        } else if (!activated && supported) {
+            containerColor = MaterialColors.getColor(statusCard, com.google.android.material.R.attr.colorErrorContainer);
+            onContainerColor = MaterialColors.getColor(statusCard, com.google.android.material.R.attr.colorOnErrorContainer);
+            statusIcon.setImageResource(R.drawable.ic_status_warning);
+            statusTitle.setText("模块未激活 · 版本已适配");
+            statusSubtitle.setText("请在 LSPosed 中启用本模块，作用域勾选 X 后重启。");
         } else {
             containerColor = MaterialColors.getColor(statusCard, com.google.android.material.R.attr.colorErrorContainer);
             onContainerColor = MaterialColors.getColor(statusCard, com.google.android.material.R.attr.colorOnErrorContainer);
             statusIcon.setImageResource(R.drawable.ic_status_warning);
-            statusTitle.setText(installed ? "版本不匹配" : "未检测到 X");
-            statusSubtitle.setText("版本不匹配，模块不会启用下载 Hook。");
+            String activeText = activated ? "模块已激活" : "模块未激活";
+            String hostText = installed ? "版本不匹配" : "未检测到 X";
+            statusTitle.setText(activeText + " · " + hostText);
+            statusSubtitle.setText(activated
+                    ? "X 版本不匹配，模块不会启用下载 Hook。"
+                    : "请在 LSPosed 中启用本模块，并使用适配版本的 X。");
         }
 
         statusCard.setCardBackgroundColor(containerColor);
