@@ -9,6 +9,7 @@
     <string name="yt_cookie_help">Optional: select a Netscape cookies.txt file exported from your own signed-in YouTube browser session after completing any verification there. Only youtube.com cookies are kept in private app storage, excluded from backups and logs. They are sent only by yt-dlp to YouTube; this app never reads another app’s account data. Cookies grant access to your session: keep the original file private and remove it from shared storage after import. Importing does not guarantee HD access. Using an account with yt-dlp may affect that account. Clearing applies to future requests; cancel ongoing downloads first.</string>
     <string name="yt_cookie_import">Import login cookies</string>
     <string name="yt_cookie_import_chrome">Import from Chrome</string>
+    <string name="yt_cookie_import_chrome_short">Import from Chrome</string>
     <string name="yt_cookie_clear">Clear session</string>
     <string name="yt_cookie_none">YouTube session: not imported (optional)</string>
     <string name="yt_cookie_present">YouTube session: imported; validity checked on the next request</string>

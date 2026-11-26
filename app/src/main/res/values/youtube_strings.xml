@@ -19,7 +19,7 @@
     <string name="yt_phase_audio">Downloading audio</string>
     <string name="yt_phase_merging">Combining audio and video</string>
     <string name="yt_phase_saving">Saving to gallery</string>
-    <string name="yt_complete">Saved to Movies/X-TG-YT-Media-Saver.</string>
+    <string name="yt_complete">Saved to Movies/Maple-Media-Saver.</string>
     <string name="yt_invalid_link">Share one valid HTTPS YouTube video link (watch, Shorts or youtu.be).</string>
     <string name="yt_restricted">This video is restricted, protected, unavailable or live. It will not be downloaded.</string>
     <string name="yt_no_format">No supported unprotected AVC/AAC MP4 stream is available.</string>

@@ -3,6 +3,7 @@
     <string name="platform_x" translatable="false">X (Twitter)</string>
     <string name="platform_telegram" translatable="false">Telegram</string>
     <string name="platform_youtube" translatable="false">YouTube</string>
-    <string name="app_name">X Telegram YouTube Media Saver</string>
-    <string name="xposed_description">X · Telegram · YouTube Media Downloader</string>
+    <string name="platform_youtube_music" translatable="false">YouTube Music</string>
+    <string name="app_name">Maple\'s Media Saver</string>
+    <string name="xposed_description">Maple\'s Media Saver · X / Telegram / YouTube</string>
 </resources>

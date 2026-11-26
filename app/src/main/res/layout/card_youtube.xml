@@ -93,7 +93,7 @@
                     <com.google.android.material.button.MaterialButton android:id="@+id/yt_cookie_import_chrome"
                         style="?attr/borderlessButtonStyle" android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:minWidth="0dp" android:paddingHorizontal="10dp"
-                        android:text="@string/yt_cookie_import_chrome" />
+                        android:text="@string/yt_cookie_import_chrome_short" />
                     <com.google.android.material.button.MaterialButton android:id="@+id/yt_cookie_clear"
                         style="?attr/borderlessButtonStyle" android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:minWidth="0dp" android:paddingHorizontal="10dp"

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">X、Telegram、YouTube媒體下載器</string>
-    <string name="xposed_description">X · Telegram · YouTube 媒體下載器</string>
+    <string name="app_name">楓之媒體下載器</string>
+    <string name="xposed_description">楓之媒體下載器 · X / Telegram / YouTube</string>
 </resources>

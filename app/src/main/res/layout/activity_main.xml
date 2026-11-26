@@ -17,7 +17,7 @@
         <com.google.android.material.appbar.CollapsingToolbarLayout
             style="?attr/collapsingToolbarLayoutMediumStyle"
             android:layout_width="match_parent"
-            android:layout_height="?attr/collapsingToolbarLayoutLargeSize"
+            android:layout_height="?attr/collapsingToolbarLayoutMediumSize"
             app:contentScrim="?attr/colorSurfaceContainer"
             app:expandedTitleMarginBottom="16dp"
             app:expandedTitleMarginEnd="16dp"
@@ -490,6 +490,7 @@
             </com.google.android.material.card.MaterialCardView>
 
             <include layout="@layout/card_youtube" />
+            <include layout="@layout/card_youtube_music" />
             <!-- Usage Guide Card -->
             <com.google.android.material.card.MaterialCardView
                 style="?attr/materialCardViewFilledStyle"

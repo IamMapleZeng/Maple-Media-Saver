@@ -9,6 +9,7 @@
     <string name="yt_cookie_help">可选：在浏览器正常登录自己的 YouTube 账号并完成验证后，选择导出的 Netscape 格式 cookies.txt。仅保留 youtube.com 的 Cookie，存入本应用私有目录，不进入备份或日志，仅供 yt-dlp 向 YouTube 请求使用；本应用不会读取其他应用的账号数据。Cookie 具有登录权限，请保护原文件，导入后移除共享存储中的副本。导入不保证能获取高清，使用账号访问 yt-dlp 可能影响该账号。清除仅对之后的请求生效，请先取消进行中的下载。</string>
     <string name="yt_cookie_import">导入登录 Cookie</string>
     <string name="yt_cookie_import_chrome">从 Chrome 导入 Cookie</string>
+    <string name="yt_cookie_import_chrome_short">从Chrome导入</string>
     <string name="yt_cookie_clear">清除会话</string>
     <string name="yt_cookie_none">YouTube 登录会话：未导入（可选）</string>
     <string name="yt_cookie_present">YouTube 登录会话：已导入，有效性将在请求时检查</string>

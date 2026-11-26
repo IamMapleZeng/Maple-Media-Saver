@@ -1,4 +1,8 @@
 <resources>
     <string name="yt_ad_block_title">Block video ads</string>
     <string name="yt_ad_block_subtitle">Filter player ad slots. Restart YouTube after changing this setting.</string>
+    <string name="ytm_ad_block_title">Block ads</string>
+    <string name="ytm_ad_block_subtitle">Filter player ads. Restart YouTube Music after changing this setting.</string>
+    <string name="ytm_bg_play_title">Background playback</string>
+    <string name="ytm_bg_play_subtitle">Keep playing music when switching apps or turning off the screen.</string>
 </resources>

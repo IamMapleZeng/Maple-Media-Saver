@@ -19,7 +19,7 @@
     <string name="yt_phase_audio">正在下載音訊</string>
     <string name="yt_phase_merging">正在合併影音</string>
     <string name="yt_phase_saving">正在儲存到相簿</string>
-    <string name="yt_complete">已儲存到 Movies/X-TG-YT-Media-Saver。</string>
+    <string name="yt_complete">已儲存到 Movies/Maple-Media-Saver。</string>
     <string name="yt_invalid_link">請分享一個有效的 HTTPS YouTube 影片連結，支援 watch、Shorts 和 youtu.be。</string>
     <string name="yt_restricted">此影片受限、受保護、無法使用或正在直播，不進行下載。</string>
     <string name="yt_no_format">沒有可用的無保護 AVC/AAC MP4 格式。</string>

@@ -1,4 +1,8 @@
 <resources>
     <string name="yt_ad_block_title">移除影片廣告</string>
     <string name="yt_ad_block_subtitle">過濾播放器廣告版位，切換後請重新啟動 YouTube。</string>
+    <string name="ytm_ad_block_title">移除廣告</string>
+    <string name="ytm_ad_block_subtitle">過濾播放器廣告版位，切換後請重新啟動 YouTube Music。</string>
+    <string name="ytm_bg_play_title">背景播放</string>
+    <string name="ytm_bg_play_subtitle">關閉螢幕或切換應用後繼續在背景播放音樂。</string>
 </resources>

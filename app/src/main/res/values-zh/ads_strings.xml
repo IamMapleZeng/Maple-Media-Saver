@@ -1,4 +1,8 @@
 <resources>
     <string name="yt_ad_block_title">去除视频广告</string>
     <string name="yt_ad_block_subtitle">过滤播放器广告位，切换后请重启 YouTube。</string>
+    <string name="ytm_ad_block_title">去除广告</string>
+    <string name="ytm_ad_block_subtitle">过滤播放器广告位，切换后请重启 YouTube Music。</string>
+    <string name="ytm_bg_play_title">后台播放</string>
+    <string name="ytm_bg_play_subtitle">息屏或切换应用后继续在后台播放音乐。</string>
 </resources>

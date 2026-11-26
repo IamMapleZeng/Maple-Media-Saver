@@ -8,8 +8,9 @@
         <package android:name="com.twitter.android" />
         <package android:name="org.telegram.messenger" />
         <package android:name="com.google.android.youtube" />
+        <package android:name="com.google.android.apps.youtube.music" />
         <package android:name="io.github.iammaplezeng.xtgmediasaver" />
-        <package android:name="io.github.iammaplezeng.xtgytmediasaver" />
+        <package android:name="io.github.iammaplezeng.maplemediasaver" />
         <package android:name="com.sukisu.ultra" />
         <package android:name="me.weishu.kernelsu" />
         <package android:name="com.rifsxd.ksunext" />
