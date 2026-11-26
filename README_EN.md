@@ -1,35 +1,82 @@
-# X-TG-YT-Media-Saver
+# Maple's Media Saver
 
 [简体中文](README.md) | **English**
 
-**v1.3.0 — X · Telegram · YouTube Media Downloader**
+[![Release](https://img.shields.io/github/v/release/IamMapleZeng/Maple-Media-Saver)](https://github.com/IamMapleZeng/Maple-Media-Saver/releases)
+[![License](https://img.shields.io/github/license/IamMapleZeng/Maple-Media-Saver)](LICENSE)
 
-The YouTube share-menu order is **Copy link → Download video → Remix**. The download action retains its normal text and icon colors during format queries; duplicate clicks are ignored without dimming the row. Closing the menu prevents a stale query from opening its confirmation window.
+An Android / LSPosed media downloader and playback enhancement module for **X (Twitter)**, **Telegram**, **YouTube**, and **YouTube Music**.
 
-YouTube now has an independent Block video ads switch, on by default for new settings; explicit user opt-outs are retained. Restart YouTube after changing it. Device testing confirmed player ad-slot filtering and normal playback; sponsored feed cards and creator sponsorships are outside its scope. The card matches X/Telegram styling and no longer includes Open YouTube.
+- **App Name**: `Maple's Media Saver` / 简体中文「枫之媒体下载器」 / 繁体中文「楓之媒體下載器」
+- **Package Name**: `io.github.iammaplezeng.maplemediasaver`
+- **Repository**: https://github.com/IamMapleZeng/Maple-Media-Saver
 
-v1.3.0 integrates yt-dlp 2026.11.23, QuickJS and FFmpeg in the companion app process. Available HD video/audio tracks are selected by exact format IDs and merged/remuxed to MP4 without video transcoding. Native low-resolution playback options and the existing X/Telegram features remain available. This APK includes arm64-v8a runtimes and is approximately 66 MiB.
+---
 
-**Device status: all three runtimes start successfully, but the tested anonymous request still requires sign-in/human verification and falls back to 360p. Actual HD saving is not yet verified.** Optional import/clear controls accept the user's own Netscape YouTube cookies, keep only youtube.com domains in private non-backed-up storage, and never read another app's credentials. Importing does not guarantee access. See [engine details](docs/YTDLP.md) and [validation](VALIDATION.md).
+## Features
 
-The verified YouTube 21.47.483 adapter now adds Download video directly to the native share sheet, reads the current shared video ID without clipboard operations, and opens a floating confirmation window. Enable the YouTube LSPosed scope and restart YouTube. The label follows the system language. Downloads run in the module app foreground service after explicit permission confirmation.
+### X (Twitter)
+- Native video and GIF downloads from the timeline long-press menu and video player
+- Batch save all images from multi-image and mixed-media posts (saved to `Pictures/XTGMediaSaver`)
 
-v1.2.4 first uses the official player's successful response for the exact shared video ID. Complete sign-in or verification in the official YouTube app, play the video, then share it. No passwords, cookies or authorization headers are read or transferred. The bounded in-memory cache expires after ten minutes. A native 360p MP4 option was observed on the target device; actual downloading is left to the user and has not passed acceptance testing. The native path offers directly supplied AVC/AAC MP4; the new yt-dlp path separately searches for HD formats. Anonymous fallback still receives LOGIN_REQUIRED / SignInConfirmNotBotException on this device.
+### Telegram
+- Unlock native photo/video saving in restricted groups and channels
 
-New three-platform launcher icon with a YouTube play symbol. The home screen now includes App language: 中文 / English / Follow system, with immediate updates and persistent selection.
+### YouTube
+- **Native Share Sheet Integration**: Tap **Share → Download video** inside YouTube to open a floating download dialog powered by the bundled **yt-dlp + QuickJS + FFmpeg** engine; downloads the selected video/audio streams and muxes them into MP4 without transcoding (up to 4K / 8K, saved to `Movies/Maple-Media-Saver`)
+- **Light & Dark Theme Support**: Share-menu entry automatically adapts to light and dark themes
+- **Cookie Session Import**: Supports importing Netscape `cookies.txt` files via the system file picker, as well as one-tap **Import from Chrome** in both the download dialog and main app (reads `youtube.com` cookies from Android Chrome with Root access)
+- **Block Video Ads**: Filters pre-roll and mid-roll player ad slots (enabled by default)
 
-Incremental upgrade of XTGMediaSaver: all maintained Java business sources and tests migrated to Kotlin. The application ID is now io.github.iammaplezeng.xtgytmediasaver, with corresponding Kotlin package paths and LSPosed entry updates. X/Telegram hook behavior, preference keys and media paths remain compatible. A same-signed legacy-package bridge copies settings, language and recent download metadata without deleting old app data. Cookies are not automatically migrated. Enable the new package in LSPosed and select its host scopes after installation.
+### YouTube Music
+- **Block Ads**: Filters pre-roll and mid-roll player ads (enabled by default)
+- **Background Playback**: Keeps music playing when switching apps or turning off the screen (enabled by default)
 
-YouTube uses **Share → Download video** in the native share menu on the exact adapted version. The standard ACTION_SEND receiver remains available for compatibility. Confirm that the content is public, non-paid, without age restrictions and that platform and rights-holder download permission has been granted. AVC/AAC media is muxed without re-encoding and saved via MediaStore to `Movies/X-TG-YT-Media-Saver`. Progress, cancellation, result opening and retry are included. User-selected login cookie import is optional. No DRM, paid-access or access-control bypass is provided. The anonymous branch checks privacy, age, paid and live metadata. The native branch checks successful playback, live flags, DRM licenses and supported formats, but relies on the user's explicit eligibility confirmation because not all eligibility fields in this native response have verified mappings. Both branches reject PSSH and encrypted samples before publication; public playback alone does not establish download permission.
+### UI & Localization
+- Material 3 dynamic color UI with an in-app language switcher icon in the top-right toolbar (**Follow system / 中文 / English**)
 
-Exact X adapter: 12.46.1-prod.01 / 312461001. Exact Telegram adapter: 13.3.1 / 73461. The native YouTube adapter supports the connected device's 21.47.483 / 1561317016; other versions retain standard system sharing. NewPipeExtractor v0.27.1 can fail due to network, bot checks or platform changes, in which case the operation stops.
+---
 
-The existing Material 3 UI now groups three platforms. System resources select Simplified Chinese, Traditional Chinese or the default English name. YouTube adds Internet, foreground data sync and notification permissions, without broad storage permissions.
+## Supported Host Versions
 
-Build with JDK 17 / SDK 35 / Gradle 8.10.2 / AGP 8.7.3 / Kotlin 2.1.0:
+| Platform | Package | Adapted Version | Notes |
+| --- | --- | --- | --- |
+| X (Twitter) | `com.twitter.android` | `12.46.1-prod.01` (`312461001`) | Exact version guard |
+| Telegram | `org.telegram.messenger` | `13.3.1` (`73461`) | Exact version guard |
+| YouTube | `com.google.android.youtube` | `21.47.483` (`1561317016`) | Native share sheet & ad filter; other versions still work via Android system share |
+| YouTube Music | `com.google.android.apps.youtube.music` | `9.47.52` (`94752240`) | Ad filter & background playback |
 
-```sh
-./gradlew :app:testDebugUnitTest :app:assembleRelease :app:lintDebug :app:assembleDebugAndroidTest
+---
+
+## Setup & Usage
+
+1. Download the latest `arm64-v8a` APK from [Releases](https://github.com/IamMapleZeng/Maple-Media-Saver/releases) and install it.
+2. Enable **Maple's Media Saver** in **LSPosed** and select the desired host scopes:
+   - `com.twitter.android` (X)
+   - `org.telegram.messenger` (Telegram)
+   - `com.google.android.youtube` (YouTube)
+   - `com.google.android.apps.youtube.music` (YouTube Music)
+3. Force stop and reopen the target apps to activate the hooks.
+4. To use **Import from Chrome**, grant Superuser permission to this app in your root manager (SukiSU Ultra / KernelSU / APatch / Magisk).
+
+---
+
+## Building from Source
+
+Requires JDK 17, Android SDK 35, Gradle 8.10+, and Kotlin 2.1.0. Configure `sdk.dir` in `local.properties` and run:
+
+```bash
+./gradlew :app:testDebugUnitTest :app:assembleDebug
 ```
 
-Sign the release APK with the existing key for in-place updates. Download and host-hook acceptance testing is left to the user as requested. See [validation](VALIDATION.md), [migration](docs/MIGRATION.md), [license](LICENSE) and [dependency source](docs/SOURCES.md). The distribution is GPL-3.0-or-later with corresponding source.
+Device smoke instrumentation test:
+
+```bash
+adb shell am instrument -w io.github.iammaplezeng.maplemediasaver.test/io.github.iammaplezeng.maplemediasaver.SmokeInstrumentation
+```
+
+---
+
+## License
+
+Licensed under **GPL-3.0-or-later**. See [LICENSE](LICENSE), [THIRD_PARTY.md](THIRD_PARTY.md), and [docs/SOURCES.md](docs/SOURCES.md) for third-party runtime details.

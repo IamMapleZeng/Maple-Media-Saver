@@ -6,5 +6,5 @@ dependencyResolutionManagement {
         maven { url 'https://jitpack.io'; content { includeGroup 'com.github.teamnewpipe'; includeGroup 'com.github.TeamNewPipe' } }
     }
 }
-rootProject.name = 'X-TG-YT-Media-Saver'
+rootProject.name = 'Maple-Media-Saver'
 include ':app'
