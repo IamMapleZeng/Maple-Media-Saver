@@ -2,7 +2,9 @@
 
 [简体中文](README.md) | **English**
 
-**v1.2.6 — X · Telegram · YouTube Media Downloader**
+**v1.2.8 — X · Telegram · YouTube Media Downloader**
+
+The YouTube share-menu order is **Copy link → Download video → Remix**. The download action retains its normal text and icon colors during format queries; duplicate clicks are ignored without dimming the row. Closing the menu prevents a stale query from opening its confirmation window.
 
 YouTube now has an independent Block video ads switch, off by default for new settings. Restart YouTube after changing it. Device testing confirmed player ad-slot filtering and normal playback; sponsored feed cards and creator sponsorships are outside its scope. The card matches X/Telegram styling and no longer includes Open YouTube.
 

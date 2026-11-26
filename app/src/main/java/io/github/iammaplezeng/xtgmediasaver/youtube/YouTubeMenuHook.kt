@@ -127,17 +127,20 @@ internal class YouTubeMenuHook {
         if (parent.findViewWithTag<View>(ROW_TAG) != null) return
         val capture = captured ?: return
         if (SystemClock.elapsedRealtime() - capture.time > 60_000 || !ModulePrefs.isYouTubeEnabled()) return
-        if (!hasCopyAction(list)) return
+        val copyAction = findCopyAction(list) ?: return
         val density = context.resources.displayMetrics.density
         fun dp(value: Int) = (value * density).toInt()
         val text = TextView(context)
-        val foreground = text.currentTextColor
+        val colors = context.obtainStyledAttributes(intArrayOf(android.R.attr.textColorPrimary))
+        val foreground = try { colors.getColorStateList(0)?.getColorForState(intArrayOf(android.R.attr.state_enabled), text.currentTextColor) ?: text.currentTextColor }
+            finally { colors.recycle() }
         val label = systemLabel()
-        text.text = label; text.textSize = 18f
+        text.text = label; text.textSize = 18f; text.setTextColor(foreground)
         val icon = ImageView(context).apply {
             background = GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor((foreground and 0x00FFFFFF) or 0x0C000000) }
             setImageDrawable(Arrow(foreground, density)); setPadding(dp(12), dp(12), dp(12), dp(12))
         }
+        val resolving = AtomicBoolean()
         val row = LinearLayout(context).apply {
             tag = ROW_TAG; orientation = LinearLayout.HORIZONTAL; gravity = android.view.Gravity.CENTER_VERTICAL
             contentDescription = label; isClickable = true; isFocusable = true
@@ -146,25 +149,33 @@ internal class YouTubeMenuHook {
             addView(text, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
             setOnClickListener {
                 val active = captured
-                if (active?.link != capture.link || !ModulePrefs.isYouTubeEnabled()) return@setOnClickListener
+                if (active?.link != capture.link || !ModulePrefs.isYouTubeEnabled() || resolving.get()) return@setOnClickListener
                 if (NativePlaybackCapture.hasAdaptiveChoices(capture.link)) {
                     openQuickDialog(context, capture.link, NativePlaybackCapture.forVideo(capture.link))
                 } else {
-                    isEnabled = false
-                    alpha = 0.6f
+                    if (!resolving.compareAndSet(false, true)) return@setOnClickListener
                     NativePlaybackCapture.resolveAsyncForTap(capture.link, 5_500L) { bundle ->
                         main.post {
-                            isEnabled = true
-                            alpha = 1f
-                            openQuickDialog(context, capture.link, bundle)
+                            resolving.set(false)
+                            if (isAttachedToWindow && captured?.link == capture.link && ModulePrefs.isYouTubeEnabled()) {
+                                openQuickDialog(context, capture.link, bundle)
+                            }
                         }
                     }
                 }
             }
         }
-        // Keep the action above the host list: a footer can fall below the screen on tall sheets.
-        parent.addView(row, parent.indexOfChild(list).coerceAtLeast(0), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(68)))
-        log("native download row added; parent=${parent.javaClass.simpleName}")
+        if (CopyLinkActionPlacement.install(parent, list, copyAction, row, dp(68)) { findCopyAction(list) }) {
+            log("native download row placed after Copy link")
+            return
+        }
+        // Keep a usable fallback if an unsupported layout is encountered.
+        (list.layoutParams as? LinearLayout.LayoutParams)?.let { params ->
+            params.weight = 1f
+            list.layoutParams = params
+        }
+        parent.addView(row, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(68)))
+        log("native download row added last; parent=${parent.javaClass.simpleName} list=${list.javaClass.simpleName}")
     }
     private fun openQuickDialog(context: Context, link: String, playbackBundle: Bundle?) {
         try {
@@ -180,13 +191,13 @@ internal class YouTubeMenuHook {
             log("native download tap")
         } catch (error: Throwable) { log("OPEN FAILED ${error.javaClass.simpleName}") }
     }
-    private fun hasCopyAction(root: View): Boolean {
-        if (root.contentDescription?.toString() in COPY_LABELS) return true
-        if (root is TextView && root.text?.toString() in COPY_LABELS) return true
+    private fun findCopyAction(root: View): View? {
+        if (root.contentDescription?.toString() in COPY_LABELS) return root
+        if (root is TextView && root.text?.toString() in COPY_LABELS) return root
         val node = root.createAccessibilityNodeInfo()
-        if (node?.contentDescription?.toString() in COPY_LABELS || node?.text?.toString() in COPY_LABELS) return true
-        if (root is ViewGroup) for (index in 0 until root.childCount) if (hasCopyAction(root.getChildAt(index))) return true
-        return false
+        if (node?.contentDescription?.toString() in COPY_LABELS || node?.text?.toString() in COPY_LABELS) return root
+        if (root is ViewGroup) for (index in 0 until root.childCount) findCopyAction(root.getChildAt(index))?.let { return it }
+        return null
     }
     private fun systemLabel(): String {
         val locale = Resources.getSystem().configuration.locales[0]

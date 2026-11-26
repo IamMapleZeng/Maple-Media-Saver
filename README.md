@@ -2,7 +2,9 @@
 
 **简体中文** | [English](README_EN.md)
 
-版本 **v1.2.6**，在现有 XTGMediaSaver 上增量升级。应用包名保持 `io.github.iammaplezeng.xtgmediasaver`，保留原 Git 历史、配置键、用户数据与下载路径。
+版本 **v1.2.8**，在现有 XTGMediaSaver 上增量升级。应用包名保持 `io.github.iammaplezeng.xtgmediasaver`，保留原 Git 历史、配置键、用户数据与下载路径。
+
+YouTube 分享菜单顺序为 **Copy link → 下载视频 → Remix**。下载入口使用正常文字和图标颜色；等待格式查询期间不再变灰，仅拦截重复点击。菜单关闭后不再自动弹出过期查询的确认窗。
 
 新增 YouTube“去除视频广告”独立开关（新配置默认关闭），切换后重启 YouTube。真机已观察到播放器广告位过滤和正常播放；暂不覆盖首页/推荐的赞助卡片或视频内植入广告。YouTube 卡片与 X、Telegram 样式统一，不再提供“打开 YouTube”按钮。
 
