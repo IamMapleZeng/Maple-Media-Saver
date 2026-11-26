@@ -8,9 +8,16 @@
     <string name="yt_cookie_title">YouTube 登入工作階段</string>
     <string name="yt_cookie_help">選用：在瀏覽器正常登入自己的 YouTube 帳號並完成驗證後，選取匯出的 Netscape 格式 cookies.txt。僅保留 youtube.com 的 Cookie，存入本應用私人目錄，不進入備份或記錄，僅供 yt-dlp 向 YouTube 請求使用；本應用不會讀取其他應用的帳號資料。Cookie 具有登入權限，請保護原始檔，匯入後移除共用儲存空間中的副本。匯入不保證能取得高清，使用帳號存取 yt-dlp 可能影響該帳號。清除僅對之後的請求生效，請先取消進行中的下載。</string>
     <string name="yt_cookie_import">匯入登入 Cookie</string>
+    <string name="yt_cookie_import_chrome">從 Chrome 匯入 Cookie</string>
     <string name="yt_cookie_clear">清除工作階段</string>
     <string name="yt_cookie_none">YouTube 登入工作階段：未匯入（選用）</string>
     <string name="yt_cookie_present">YouTube 登入工作階段：已匯入，有效性將於請求時檢查</string>
     <string name="yt_cookie_imported">已匯入。請重新分享影片，或重試高清查詢。既有應用設定保持不變。</string>
     <string name="yt_cookie_invalid">匯入失敗。請選取含有 youtube.com Cookie 的 Netscape 格式 cookies.txt，大小不超過 256 KB。</string>
+    <string name="yt_cookie_chrome_imported">已從 Chrome 匯入 YouTube Cookie。</string>
+    <string name="yt_cookie_chrome_root_denied">未取得 Root 權限。如使用 KernelSU / SukiSU / APatch，請在 Root 管理器中手動為本應用授予超級使用者權限後重試。</string>
+    <string name="yt_cookie_chrome_open_root_manager">開啟 Root 管理器</string>
+    <string name="yt_cookie_chrome_not_found">未在裝置上找到 Chrome 的 Cookie 資料庫。</string>
+    <string name="yt_cookie_chrome_no_cookies">Chrome 中未找到 YouTube Cookie，請先在 Chrome 中登入 YouTube。</string>
+    <string name="yt_cookie_chrome_failed">從 Chrome 匯入 Cookie 失敗。</string>
 </resources>

@@ -17,6 +17,7 @@ class YtDlpFormatsTest {
     @Test fun listsHdAnd4kWithSeparateAudioInsteadOfLimitingToProgressive() {
         val manifest = YtDlpFormats.parse(info("$audio,${video("137", 1080)},${video("401", 2160, "av01.0.12M.08")}"), link)
         assertEquals(listOf(2160, 1080), manifest.choices.map { it.height })
+        assertEquals(listOf("2160p · MP4", "1080p · MP4"), manifest.choices.map { it.label })
         assertEquals(listOf("401+140", "137+140"), manifest.choices.map { it.ytDlpFormat })
     }
     @Test fun encryptedFormatsNeverBecomeDownloadChoices() {

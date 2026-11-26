@@ -5,7 +5,6 @@ import android.net.Uri
 import android.util.AtomicFile
 import java.io.File
 
-/** Never reads another app's account store. All input comes from the user's file picker. */
 internal object YouTubeCookies {
     private fun file(context: Context) = File(context.noBackupFilesDir, "youtube-session.txt")
     @Synchronized fun present(context: Context) = file(context).isFile
@@ -23,12 +22,17 @@ internal object YouTubeCookies {
         }
             ?: error("Cannot read selected file")
         require(bytes.size <= YouTubeCookieFile.MAX_BYTES)
-        val text = YouTubeCookieFile.sanitize(bytes.toString(Charsets.UTF_8))
+        saveSanitized(context, bytes.toString(Charsets.UTF_8))
+    }
+
+    @Synchronized fun saveSanitized(context: Context, rawNetscapeText: String) {
+        val text = YouTubeCookieFile.sanitize(rawNetscapeText)
         val target = AtomicFile(file(context))
         val stream = target.startWrite()
         try { stream.write(text.toByteArray(Charsets.UTF_8)); target.finishWrite(stream) }
         catch (error: Exception) { target.failWrite(stream); throw error }
     }
+
     @Synchronized fun snapshot(context: Context): File? {
         val source = file(context)
         if (!source.isFile) return null

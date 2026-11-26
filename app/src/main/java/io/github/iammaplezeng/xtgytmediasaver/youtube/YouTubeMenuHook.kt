@@ -7,13 +7,17 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
+import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.ColorFilter
 import android.graphics.Paint
 import android.graphics.PixelFormat
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -35,13 +39,14 @@ import java.lang.ref.WeakReference
 import java.util.WeakHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 
-/** Adds a native Android row to the verified share-sheet LinearLayout, without clipboard access. */
+/** Adds a native Android row to the verified share-sheet, without clipboard access. */
 internal class YouTubeMenuHook {
     private data class Capture(val link: String, val time: Long)
     @Volatile private var captured: Capture? = null
     private val installed = AtomicBoolean()
     private val main = Handler(Looper.getMainLooper())
     private val observers = WeakHashMap<Activity, ViewTreeObserver.OnGlobalLayoutListener>()
+
     fun handleLoadPackage(p: XC_LoadPackage.LoadPackageParam) {
         XposedBridge.hookMethod(Application::class.java.getDeclaredMethod("attach", Context::class.java), object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
@@ -54,8 +59,6 @@ internal class YouTubeMenuHook {
                     }
                     try { YouTubeAdsHook.install(context.classLoader) }
                     catch (error: Throwable) { log("ad filter unavailable ${error.javaClass.simpleName}") }
-                    try { NativePlaybackCapture.install(context.classLoader) }
-                    catch (error: Throwable) { log("native player observer unavailable ${error.javaClass.simpleName}") }
                     val request = Class.forName("alsy", false, context.classLoader)
                     val entity = request.getDeclaredField("a").apply { isAccessible = true }
                     check(entity.type == String::class.java)
@@ -86,14 +89,13 @@ internal class YouTubeMenuHook {
             }
         })
     }
+
     private fun capture(encoded: String?) {
         val link = encoded?.let(SharedVideoEntity::videoLink)
         captured = link?.let { Capture(it, SystemClock.elapsedRealtime()) }
-        if (link != null && ModulePrefs.isYouTubeEnabled()) {
-            NativePlaybackCapture.prefetchInHost(link)
-        }
         log(if (link != null) "share video captured" else "share entity unavailable ${encoded?.let(SharedVideoEntity::layout)}")
     }
+
     private fun callbacks() = object : Application.ActivityLifecycleCallbacks {
         override fun onActivityResumed(activity: Activity) {
             if (observers.containsKey(activity)) return
@@ -110,37 +112,45 @@ internal class YouTubeMenuHook {
         override fun onActivityStopped(activity: Activity) { }
         override fun onActivitySaveInstanceState(activity: Activity, out: Bundle) { }
     }
+
     private fun detach(activity: Activity) {
         observers.remove(activity)?.let { if (activity.window.decorView.viewTreeObserver.isAlive) activity.window.decorView.viewTreeObserver.removeOnGlobalLayoutListener(it) }
     }
+
     private fun scanSafely(activity: Activity) {
         scanSafely(activity.window.decorView, activity)
     }
+
     private fun scanSafely(root: View, context: Context) {
         try { scan(root, context) } catch (error: Throwable) { log("MENU SKIPPED ${error.javaClass.simpleName}") }
     }
+
     private fun scan(root: View, context: Context) {
         val id = context.resources.getIdentifier("bottom_sheet_list", "id", HostVersions.YT_PACKAGE)
         if (id == 0) return
         val list = root.findViewById<View>(id) as? ViewGroup ?: return
         val parent = list.parent as? LinearLayout ?: return
-        if (parent.findViewWithTag<View>(ROW_TAG) != null) return
+        if (root.findViewWithTag<View>(ROW_TAG) != null) return
         val capture = captured ?: return
         if (SystemClock.elapsedRealtime() - capture.time > 60_000 || !ModulePrefs.isYouTubeEnabled()) return
         val copyAction = findCopyAction(list) ?: return
         val density = context.resources.displayMetrics.density
         fun dp(value: Int) = (value * density).toInt()
-        val text = TextView(context)
-        val colors = context.obtainStyledAttributes(intArrayOf(android.R.attr.textColorPrimary))
-        val foreground = try { colors.getColorStateList(0)?.getColorForState(intArrayOf(android.R.attr.state_enabled), text.currentTextColor) ?: text.currentTextColor }
-            finally { colors.recycle() }
+        val foreground = resolveForegroundColor(root, list, copyAction, context)
         val label = systemLabel()
-        text.text = label; text.textSize = 18f; text.setTextColor(foreground)
-        val icon = ImageView(context).apply {
-            background = GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor((foreground and 0x00FFFFFF) or 0x0C000000) }
-            setImageDrawable(Arrow(foreground, density)); setPadding(dp(12), dp(12), dp(12), dp(12))
+        val text = TextView(context).apply {
+            this.text = label
+            textSize = 18f
+            setTextColor(foreground)
         }
-        val resolving = AtomicBoolean()
+        val icon = ImageView(context).apply {
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor((foreground and 0x00FFFFFF) or 0x14000000)
+            }
+            setImageDrawable(Arrow(foreground, density))
+            setPadding(dp(12), dp(12), dp(12), dp(12))
+        }
         val row = LinearLayout(context).apply {
             tag = ROW_TAG; orientation = LinearLayout.HORIZONTAL; gravity = android.view.Gravity.CENTER_VERTICAL
             contentDescription = label; isClickable = true; isFocusable = true
@@ -149,20 +159,8 @@ internal class YouTubeMenuHook {
             addView(text, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
             setOnClickListener {
                 val active = captured
-                if (active?.link != capture.link || !ModulePrefs.isYouTubeEnabled() || resolving.get()) return@setOnClickListener
-                if (NativePlaybackCapture.hasAdaptiveChoices(capture.link)) {
-                    openQuickDialog(context, capture.link, NativePlaybackCapture.forVideo(capture.link))
-                } else {
-                    if (!resolving.compareAndSet(false, true)) return@setOnClickListener
-                    NativePlaybackCapture.resolveAsyncForTap(capture.link, 5_500L) { bundle ->
-                        main.post {
-                            resolving.set(false)
-                            if (isAttachedToWindow && captured?.link == capture.link && ModulePrefs.isYouTubeEnabled()) {
-                                openQuickDialog(context, capture.link, bundle)
-                            }
-                        }
-                    }
-                }
+                if (active?.link != capture.link || !ModulePrefs.isYouTubeEnabled()) return@setOnClickListener
+                openQuickDialog(context, capture.link)
             }
         }
         if (CopyLinkActionPlacement.install(parent, list, copyAction, row, dp(68)) { findCopyAction(list) }) {
@@ -177,13 +175,66 @@ internal class YouTubeMenuHook {
         parent.addView(row, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(68)))
         log("native download row added last; parent=${parent.javaClass.simpleName} list=${list.javaClass.simpleName}")
     }
-    private fun openQuickDialog(context: Context, link: String, playbackBundle: Bundle?) {
+
+    private fun resolveForegroundColor(root: View, list: ViewGroup, copyAction: View, context: Context): Int {
+        findSampleTextColor(copyAction)?.let { return it }
+        findSampleTextColor(list)?.let { return it }
+        findBackgroundColor(list, root)?.let { bg ->
+            return if (isDarkColor(bg)) Color.WHITE else LIGHT_MODE_TEXT_COLOR
+        }
+        val night = (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+        return if (night) Color.WHITE else LIGHT_MODE_TEXT_COLOR
+    }
+
+    private fun findSampleTextColor(view: View): Int? {
+        if (view is TextView && !view.text.isNullOrBlank()) {
+            val color = view.currentTextColor
+            if (Color.alpha(color) >= 128) return color
+        }
+        if (view is ViewGroup) {
+            for (index in 0 until view.childCount) {
+                findSampleTextColor(view.getChildAt(index))?.let { return it }
+            }
+        }
+        return null
+    }
+
+    private fun findBackgroundColor(start: View, stopAt: View): Int? {
+        var current: View? = start
+        while (current != null) {
+            extractDrawableColor(current.background)?.let { return it }
+            current.backgroundTintList?.defaultColor?.takeIf { Color.alpha(it) >= 128 }?.let { return it }
+            if (current === stopAt) break
+            current = current.parent as? View
+        }
+        return null
+    }
+
+    private fun extractDrawableColor(drawable: Drawable?): Int? {
+        if (drawable == null) return null
+        return when (drawable) {
+            is ColorDrawable -> drawable.color.takeIf { Color.alpha(it) >= 128 }
+            is GradientDrawable -> drawable.color?.defaultColor?.takeIf { Color.alpha(it) >= 128 }
+            is LayerDrawable -> {
+                for (i in drawable.numberOfLayers - 1 downTo 0) {
+                    extractDrawableColor(drawable.getDrawable(i))?.let { return it }
+                }
+                null
+            }
+            else -> null
+        }
+    }
+
+    private fun isDarkColor(color: Int): Boolean {
+        val luminance = (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255.0
+        return luminance < 0.5
+    }
+
+    private fun openQuickDialog(context: Context, link: String) {
         try {
             val intent = Intent(Intent.ACTION_SEND).setType("text/plain").addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                 .setComponent(ComponentName(BuildConfig.APPLICATION_ID, "${BuildConfig.APPLICATION_ID}.youtube.YouTubeQuickActivity"))
                 .putExtra(Intent.EXTRA_TEXT, link).putExtra(EXTRA_NATIVE_SHARE, true)
-            playbackBundle?.let { intent.putExtra(NativePlaybackPayload.EXTRA, it) }
-            NativePlaybackCapture.lastVisitorData?.let { intent.putExtra(NativePlaybackPayload.EXTRA_VISITOR, it) }
             var owner: Context = context
             while (owner is ContextWrapper && owner !is Activity && owner.baseContext !== owner) owner = owner.baseContext
             if (owner is Activity) owner.startActivity(intent)
@@ -191,6 +242,7 @@ internal class YouTubeMenuHook {
             log("native download tap")
         } catch (error: Throwable) { log("OPEN FAILED ${error.javaClass.simpleName}") }
     }
+
     private fun findCopyAction(root: View): View? {
         if (root.contentDescription?.toString() in COPY_LABELS) return root
         if (root is TextView && root.text?.toString() in COPY_LABELS) return root
@@ -199,12 +251,14 @@ internal class YouTubeMenuHook {
         if (root is ViewGroup) for (index in 0 until root.childCount) findCopyAction(root.getChildAt(index))?.let { return it }
         return null
     }
+
     private fun systemLabel(): String {
         val locale = Resources.getSystem().configuration.locales[0]
         return if (locale.language == "zh") {
             if (locale.script == "Hant" || locale.country in setOf("TW", "HK", "MO")) "下載影片" else "下载视频"
         } else "Download video"
     }
+
     private class Arrow(color: Int, private val density: Float) : Drawable() {
         private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { this.color = color; strokeWidth = 2 * density; strokeCap = Paint.Cap.ROUND; style = Paint.Style.STROKE }
         override fun draw(canvas: Canvas) {
@@ -218,10 +272,13 @@ internal class YouTubeMenuHook {
         override fun setColorFilter(filter: ColorFilter?) { paint.colorFilter = filter }
         @Deprecated("Deprecated in Java") override fun getOpacity() = PixelFormat.TRANSLUCENT
     }
+
     private fun log(message: String) = XTGMediaSaverModule.log("[YT] $message")
+
     companion object {
         const val EXTRA_NATIVE_SHARE = "io.github.iammaplezeng.xtgytmediasaver.NATIVE_YT_SHARE"
         private const val ROW_TAG = "io.github.iammaplezeng.xtgytmediasaver.youtube.download"
+        private const val LIGHT_MODE_TEXT_COLOR = 0xFF0F0F0F.toInt()
         private val COPY_LABELS = setOf("Copy link", "复制链接", "複製連結", "复制连结", "リンクをコピー", "링크 복사", "Copiar enlace", "Copier le lien", "Link kopieren")
     }
 }

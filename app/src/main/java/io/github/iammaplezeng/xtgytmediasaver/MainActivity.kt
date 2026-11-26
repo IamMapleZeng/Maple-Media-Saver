@@ -16,8 +16,12 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runInterruptible
+import io.github.iammaplezeng.xtgytmediasaver.youtube.ChromeCookieImporter
+import io.github.iammaplezeng.xtgytmediasaver.youtube.ChromeImportError
+import io.github.iammaplezeng.xtgytmediasaver.youtube.ChromeImportException
 import io.github.iammaplezeng.xtgytmediasaver.youtube.YtDlpRuntime
 import io.github.iammaplezeng.xtgytmediasaver.youtube.YouTubeCookies
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.color.MaterialColors
@@ -79,6 +83,41 @@ class MainActivity : AppCompatActivity() {
                 .setPositiveButton(R.string.yt_cookie_import) { _, _ -> selectCookies.launch(arrayOf("text/*", "application/octet-stream")) }
                 .setNegativeButton(android.R.string.cancel, null).show()
         }
+        val chromeButton = findViewById<View>(R.id.yt_cookie_import_chrome)
+        chromeButton.setOnClickListener {
+            chromeButton.isEnabled = false
+            lifecycleScope.launch {
+                var rootDenied = false
+                val message = try {
+                    runInterruptible(Dispatchers.IO) { ChromeCookieImporter.importFromChrome(applicationContext) }
+                    R.string.yt_cookie_chrome_imported
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (error: ChromeImportException) {
+                    if (error.reason == ChromeImportError.ROOT_DENIED) rootDenied = true
+                    when (error.reason) {
+                        ChromeImportError.ROOT_DENIED -> R.string.yt_cookie_chrome_root_denied
+                        ChromeImportError.CHROME_NOT_FOUND -> R.string.yt_cookie_chrome_not_found
+                        ChromeImportError.NO_COOKIES -> R.string.yt_cookie_chrome_no_cookies
+                        ChromeImportError.FAILED -> R.string.yt_cookie_chrome_failed
+                    }
+                } catch (_: Exception) {
+                    R.string.yt_cookie_chrome_failed
+                }
+                chromeButton.isEnabled = true
+                refreshCookieStatus()
+                val dialog = MaterialAlertDialogBuilder(this@MainActivity).setMessage(message)
+                    .setPositiveButton(android.R.string.ok, null)
+                if (rootDenied) {
+                    ChromeCookieImporter.rootManagerLaunchIntent(this@MainActivity)?.let { launchIntent ->
+                        dialog.setNeutralButton(R.string.yt_cookie_chrome_open_root_manager) { _, _ ->
+                            runCatching { startActivity(launchIntent) }
+                        }
+                    }
+                }
+                dialog.show()
+            }
+        }
         findViewById<View>(R.id.yt_cookie_clear).setOnClickListener {
             YouTubeCookies.clear(applicationContext)
             refreshCookieStatus()
@@ -93,13 +132,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun bindLanguageSetting() {
         val options = arrayOf(getString(R.string.language_system), getString(R.string.language_chinese), getString(R.string.language_english))
-        findViewById<TextView>(R.id.language_value).text = options[LanguageSettings.selectedIndex()]
-        findViewById<View>(R.id.button_language).setOnClickListener {
-            MaterialAlertDialogBuilder(this).setTitle(R.string.language_title)
-                .setSingleChoiceItems(options, LanguageSettings.selectedIndex()) { dialog, index ->
-                    dialog.dismiss()
-                    LanguageSettings.select(index)
-                }.setNegativeButton(android.R.string.cancel, null).show()
+        findViewById<MaterialToolbar>(R.id.toolbar).setOnMenuItemClickListener { item ->
+            if (item.itemId == R.id.action_language) {
+                MaterialAlertDialogBuilder(this).setTitle(R.string.language_title)
+                    .setSingleChoiceItems(options, LanguageSettings.selectedIndex()) { dialog, index ->
+                        dialog.dismiss()
+                        LanguageSettings.select(index)
+                    }.setNegativeButton(android.R.string.cancel, null).show()
+                true
+            } else false
         }
     }
 

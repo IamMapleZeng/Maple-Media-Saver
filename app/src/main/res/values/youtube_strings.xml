@@ -7,10 +7,11 @@
     <string name="yt_permission_required">Confirm download permission before continuing. Public availability alone does not grant permission.</string>
     <string name="yt_analyze">Check video</string>
     <string name="yt_cancel">Cancel</string>
+    <string name="yt_close">Close</string>
     <string name="yt_open">Open saved video</string>
     <string name="yt_retry">Retry</string>
     <string name="yt_idle">Share or paste a YouTube video link.</string>
-    <string name="yt_inspecting">Checking availability and formats…</string>
+    <string name="yt_inspecting">Checking available qualities…</string>
     <string name="yt_choose_quality">Choose an available MP4 quality.</string>
     <string name="yt_channel">YouTube downloads</string>
     <string name="yt_downloading">Starting download…</string>

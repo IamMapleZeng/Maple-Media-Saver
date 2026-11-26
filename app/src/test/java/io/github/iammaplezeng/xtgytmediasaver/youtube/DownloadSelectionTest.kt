@@ -6,12 +6,12 @@ import org.junit.Test
 
 class DownloadSelectionTest {
     private val link = "https://www.youtube.com/watch?v=abcdefgh_12"
-    private val sd = VideoChoice("360p", 360, "https://rr1.googlevideo.com/videoplayback?itag=18", null)
-    private val hd = VideoChoice("1080p", 1080, "", null, "137+140")
+    private val sd = VideoChoice("360p · MP4", 360, "18")
+    private val hd = VideoChoice("1080p · MP4", 1080, "137+140")
     @After fun reset() { YouTubeSession.update(YouTubeState.Idle) }
     @Test fun asyncRefreshCannotChangeTheUsersSelectedQuality() {
         val displayed = VideoManifest(link, "Video", listOf(hd, sd))
-        val refreshed = displayed.copy(choices = listOf(VideoChoice("2160p", 2160, "", null, "401+140"), hd, sd))
+        val refreshed = displayed.copy(choices = listOf(VideoChoice("2160p · MP4", 2160, "401+140"), hd, sd))
         YouTubeSession.update(YouTubeState.Ready(refreshed))
         val selected = YouTubeSession.prepareDownload(displayed, displayed.choices[1])
         assertNotNull(selected)

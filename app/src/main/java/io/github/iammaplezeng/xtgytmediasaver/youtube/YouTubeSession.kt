@@ -1,7 +1,7 @@
 package io.github.iammaplezeng.xtgytmediasaver.youtube
 
-import android.util.Log
 import android.content.Context
+import android.util.Log
 import java.util.UUID
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -18,7 +18,7 @@ import kotlinx.coroutines.runInterruptible
 internal sealed interface YouTubeState {
     data object Idle : YouTubeState
     data class Inspecting(val link: String) : YouTubeState
-    data class Ready(val manifest: VideoManifest, val checkingHd: Boolean = false, val warning: DownloadError? = null) : YouTubeState
+    data class Ready(val manifest: VideoManifest) : YouTubeState
     data class Downloading(val percent: Int, val phase: Phase) : YouTubeState
     data class Complete(val uri: String) : YouTubeState
     data class Failed(val error: DownloadError) : YouTubeState
@@ -33,7 +33,7 @@ internal object YouTubeSession {
     private var inspection: Job? = null
     private var pending: DownloadSelection? = null
 
-    @Synchronized fun inspect(context: Context, text: String, permitted: Boolean, fallback: VideoManifest? = null, visitorData: String? = null) {
+    @Synchronized fun inspect(context: Context, text: String) {
         if (mutable.value is YouTubeState.Downloading) return
         inspection?.cancel()
         val link = YouTubeLink.parse(text)
@@ -41,23 +41,12 @@ internal object YouTubeSession {
             mutable.value = YouTubeState.Failed(DownloadError.INVALID_LINK)
             return
         }
-        val validFallback = fallback?.takeIf { it.link == link && it.choices.isNotEmpty() }
-        if (validFallback != null) {
-            mutable.value = YouTubeState.Ready(validFallback, checkingHd = true)
-        } else {
-            mutable.value = YouTubeState.Inspecting(link)
-        }
+        mutable.value = YouTubeState.Inspecting(link)
         inspection = scope.launch {
             try {
-                val result = runInterruptible { YouTubeResolver.resolve(context.applicationContext, link, permitted, visitorData) }
+                val result = runInterruptible { YouTubeResolver.resolve(context.applicationContext, link, true) }
                 currentCoroutineContext().ensureActive()
-                val mergedChoices = if (validFallback != null) {
-                    (result.choices + validFallback.choices)
-                        .sortedWith(compareByDescending<VideoChoice> { it.height }.thenBy { it.audioUrl != null })
-                        .distinctBy { it.height }
-                } else result.choices
-                val title = result.title.ifBlank { validFallback?.title.orEmpty() }
-                finishInspection(YouTubeState.Ready(VideoManifest(link, title, mergedChoices)), currentCoroutineContext()[Job])
+                finishInspection(YouTubeState.Ready(result), currentCoroutineContext()[Job])
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (error: Exception) {
@@ -69,11 +58,7 @@ internal object YouTubeSession {
                             .replace(link.substringAfter("v="), "[video]").take(400)
                     }
                 Log.w("XTGMediaSaver", "[YT] resolve failed: $chain")
-                if (validFallback != null) {
-                    finishInspection(YouTubeState.Ready(validFallback, warning = DownloadErrors.classify(error)), currentCoroutineContext()[Job])
-                } else {
-                    finishInspection(YouTubeState.Failed(DownloadErrors.classify(error)), currentCoroutineContext()[Job])
-                }
+                finishInspection(YouTubeState.Failed(DownloadErrors.classify(error)), currentCoroutineContext()[Job])
             }
         }
     }

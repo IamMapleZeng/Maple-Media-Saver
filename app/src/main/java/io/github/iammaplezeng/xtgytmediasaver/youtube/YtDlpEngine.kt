@@ -13,7 +13,7 @@ internal object YtDlpEngine {
         return YtDlpFormats.parse(json, canonical)
     }
     suspend fun download(context: Context, manifest: VideoManifest, choice: VideoChoice, directory: File, progress: (Int, Phase) -> Unit): File {
-        val selection = choice.ytDlpFormat?.takeIf(YtDlpFormats::validSelection) ?: throw DownloadFailure(DownloadError.NO_FORMAT)
+        val selection = choice.ytDlpFormat.takeIf(YtDlpFormats::validSelection) ?: throw DownloadFailure(DownloadError.NO_FORMAT)
         val output = File(directory, "media.%(ext)s")
         val tracks = selection.split('+').size
         var completed = 0

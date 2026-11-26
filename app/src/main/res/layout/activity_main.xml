@@ -17,9 +17,13 @@
         <com.google.android.material.appbar.CollapsingToolbarLayout
             style="?attr/collapsingToolbarLayoutMediumStyle"
             android:layout_width="match_parent"
-            android:layout_height="?attr/collapsingToolbarLayoutMediumSize"
+            android:layout_height="?attr/collapsingToolbarLayoutLargeSize"
             app:contentScrim="?attr/colorSurfaceContainer"
+            app:expandedTitleMarginBottom="16dp"
+            app:expandedTitleMarginEnd="16dp"
+            app:expandedTitleMarginStart="16dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
+            app:maxLines="2"
             app:title="@string/app_name">
 
             <com.google.android.material.appbar.MaterialToolbar
@@ -27,7 +31,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:elevation="0dp"
-                app:layout_collapseMode="pin" />
+                app:layout_collapseMode="pin"
+                app:menu="@menu/menu_main" />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
@@ -106,8 +111,6 @@
                 </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>
-
-            <include layout="@layout/card_language" />
 
             <!-- Platform 1: X (Twitter) Configuration Card -->
             <com.google.android.material.card.MaterialCardView

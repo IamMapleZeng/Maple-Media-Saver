@@ -8,9 +8,16 @@
     <string name="yt_cookie_title">YouTube login session</string>
     <string name="yt_cookie_help">Optional: select a Netscape cookies.txt file exported from your own signed-in YouTube browser session after completing any verification there. Only youtube.com cookies are kept in private app storage, excluded from backups and logs. They are sent only by yt-dlp to YouTube; this app never reads another app’s account data. Cookies grant access to your session: keep the original file private and remove it from shared storage after import. Importing does not guarantee HD access. Using an account with yt-dlp may affect that account. Clearing applies to future requests; cancel ongoing downloads first.</string>
     <string name="yt_cookie_import">Import login cookies</string>
+    <string name="yt_cookie_import_chrome">Import from Chrome</string>
     <string name="yt_cookie_clear">Clear session</string>
     <string name="yt_cookie_none">YouTube session: not imported (optional)</string>
     <string name="yt_cookie_present">YouTube session: imported; validity checked on the next request</string>
     <string name="yt_cookie_imported">Imported. Share the video again, or retry HD lookup. Your existing app settings are unchanged.</string>
     <string name="yt_cookie_invalid">Import failed. Select a Netscape cookies.txt file containing youtube.com cookies (up to 256 KB).</string>
+    <string name="yt_cookie_chrome_imported">Imported YouTube cookies from Chrome.</string>
+    <string name="yt_cookie_chrome_root_denied">Root permission is not granted. If you use KernelSU / SukiSU / APatch, manually grant Superuser permission to this app in your root manager and retry.</string>
+    <string name="yt_cookie_chrome_open_root_manager">Open root manager</string>
+    <string name="yt_cookie_chrome_not_found">Chrome cookie database not found on this device.</string>
+    <string name="yt_cookie_chrome_no_cookies">No YouTube cookies found in Chrome. Sign in to YouTube in Chrome first.</string>
+    <string name="yt_cookie_chrome_failed">Failed to import cookies from Chrome.</string>
 </resources>

@@ -26,7 +26,7 @@ internal object YtDlpFormats {
             val separate = format.getString("acodec", "none") == "none"
             if (separate && audio == null) return@mapNotNull null
             val selection = format.getString("format_id") + if (separate) "+${audio?.getString("format_id")}" else ""
-            format to VideoChoice("${height}p · MP4 · yt-dlp", height, "", null, selection)
+            format to VideoChoice("${height}p · MP4", height, selection)
         }.sortedWith(compareByDescending<Pair<JsonObject, VideoChoice>> { it.second.height }
             .thenByDescending { it.first.getString("ext") == "mp4" }
             .thenByDescending { it.first.getString("vcodec", "").startsWith("avc") }

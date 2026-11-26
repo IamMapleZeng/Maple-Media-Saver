@@ -15,9 +15,6 @@ import android.os.SystemClock
 import android.provider.MediaStore
 import io.github.iammaplezeng.xtgytmediasaver.youtube.GalleryPublisher
 import io.github.iammaplezeng.xtgytmediasaver.youtube.Mp4Merger
-import io.github.iammaplezeng.xtgytmediasaver.youtube.NativePlaybackPayload
-import io.github.iammaplezeng.xtgytmediasaver.youtube.VideoChoice
-import io.github.iammaplezeng.xtgytmediasaver.youtube.VideoManifest
 import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.util.Locale
@@ -25,26 +22,15 @@ import java.util.UUID
 
 /** Device smoke tests use synthetic media only; never download an unlicensed network video. */
 class SmokeInstrumentation : Instrumentation() {
-    private var payloadOnly = false
     override fun onCreate(arguments: Bundle?) {
-        payloadOnly = arguments?.getString("nativePayloadOnly") == "true"
         super.onCreate(arguments); start()
     }
     override fun onStart() {
-        if (payloadOnly) {
-            try {
-                checkNativePayload()
-                finish(Activity.RESULT_OK, Bundle().apply { putString("stream", "PASS native playback payload: roundtrip, video binding, expiry, future timestamp, invalid URL, array shape, IPC budget\n") })
-            } catch (error: Throwable) {
-                finish(Activity.RESULT_CANCELED, Bundle().apply { putString("stream", "FAIL ${error.stackTraceToString()}") })
-            }
-            return
-        }
         val results = ArrayList<String>()
         val directory = File(targetContext.cacheDir, "smoke-${UUID.randomUUID()}")
         try {
-            for ((tag, name) in listOf("en-US" to "X TG YT Media Saver", "zh-CN" to "X、TG、YT媒体下载器",
-                "zh-TW" to "X、TG、YT媒體下載器", "zh-Hant-HK" to "X、TG、YT媒體下載器", "fr-FR" to "X TG YT Media Saver")) {
+            for ((tag, name) in listOf("en-US" to "X Telegram YouTube Media Saver", "zh-CN" to "X、Telegram、YouTube媒体下载器",
+                "zh-TW" to "X、Telegram、YouTube媒體下載器", "zh-Hant-HK" to "X、Telegram、YouTube媒體下載器", "fr-FR" to "X Telegram YouTube Media Saver")) {
                 val configuration = Configuration(targetContext.resources.configuration)
                 configuration.setLocales(LocaleList(Locale.forLanguageTag(tag)))
                 check(targetContext.createConfigurationContext(configuration).getString(R.string.app_name) == name) { "Locale $tag" }
@@ -88,19 +74,6 @@ class SmokeInstrumentation : Instrumentation() {
         } catch (error: Throwable) {
             finish(Activity.RESULT_CANCELED, Bundle().apply { putString("stream", results.joinToString("\n") + "\nFAIL " + error.stackTraceToString()) })
         } finally { if (directory.canonicalFile.parentFile == targetContext.cacheDir.canonicalFile) directory.deleteRecursively() }
-    }
-    private fun checkNativePayload() {
-        val link = "https://www.youtube.com/watch?v=abcdefgh_12"
-        val manifest = VideoManifest(link, "Synthetic metadata", listOf(VideoChoice("360p · MP4", 360,
-            "https://rr1.googlevideo.com/videoplayback?id=synthetic", null)))
-        val bundle = NativePlaybackPayload.encode(manifest)
-        check(NativePlaybackPayload.decode(bundle, link) == manifest)
-        check(NativePlaybackPayload.decode(bundle, "https://www.youtube.com/watch?v=abcdefgh_13") == null)
-        check(NativePlaybackPayload.decode(Bundle(bundle).apply { putLong("created", System.currentTimeMillis() - 700_000) }, link) == null)
-        check(NativePlaybackPayload.decode(Bundle(bundle).apply { putLong("created", System.currentTimeMillis() + 700_000) }, link) == null)
-        check(NativePlaybackPayload.decode(Bundle(bundle).apply { putStringArrayList("video", arrayListOf("https://127.0.0.1/videoplayback")) }, link) == null)
-        check(NativePlaybackPayload.decode(Bundle(bundle).apply { putIntArray("height", intArrayOf()) }, link) == null)
-        check(NativePlaybackPayload.decode(Bundle(bundle).apply { putStringArrayList("video", arrayListOf("a".repeat(61_000))) }, link) == null)
     }
     private fun encode(file: File, audio: Boolean) {
         val mime = if (audio) "audio/mp4a-latm" else "video/avc"

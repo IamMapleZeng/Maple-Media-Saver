@@ -65,40 +65,13 @@ class YouTubeDownloadService : Service() {
             var phase = Phase.VIDEO
             try {
                 if (!directory.mkdirs()) throw DownloadFailure(DownloadError.STORAGE)
-                val output = if (choice.ytDlpFormat != null) {
-                    YtDlpEngine.download(this@YouTubeDownloadService, manifest, choice, directory) { percent, currentPhase ->
-                        phase = currentPhase
-                        progress(percent, currentPhase)
-                    }.also { file ->
-                        phase = Phase.MERGING
-                        progress(94, phase, true)
-                        Mp4Merger.validateEngineOutput(file)
-                    }
-                } else {
-                    val video = File(directory, "video.mp4")
-                    val audio = File(directory, "audio.m4a")
-                    MediaTransfer.fetch(choice.videoUrl, video) { bytes, total ->
-                        progress(if (total > 0) ((bytes.toDouble() / total) * if (choice.audioUrl == null) 90 else 75).toInt() else -1, Phase.VIDEO)
-                    }
-                    val inputs = arrayListOf(video)
-                    choice.audioUrl?.let { url ->
-                        phase = Phase.AUDIO
-                        MediaTransfer.fetch(url, audio) { bytes, total ->
-                            progress(if (total > 0) 75 + (bytes.toDouble() / total * 15).toInt() else -1, Phase.AUDIO)
-                        }
-                        inputs.add(audio)
-                    }
+                val output = YtDlpEngine.download(this@YouTubeDownloadService, manifest, choice, directory) { percent, currentPhase ->
+                    phase = currentPhase
+                    progress(percent, currentPhase)
+                }.also { file ->
                     phase = Phase.MERGING
-                    progress(92, phase, true)
-                    if (choice.audioUrl == null) {
-                        // Progressive MP4 already contains muxed AVC + AAC; validate container & encryption without stripping B-frame ctts.
-                        Mp4Merger.validateProgressive(video)
-                        video
-                    } else {
-                        File(directory, "merged.mp4").also { merged ->
-                            Mp4Merger.merge(inputs, merged, true)
-                        }
-                    }
+                    progress(94, phase, true)
+                    Mp4Merger.validateEngineOutput(file)
                 }
                 phase = Phase.SAVING
                 progress(98, phase, true)

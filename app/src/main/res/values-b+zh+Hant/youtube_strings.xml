@@ -7,10 +7,11 @@
     <string name="yt_permission_required">請先確認下載許可。能夠公開觀看不代表獲得了下載許可。</string>
     <string name="yt_analyze">檢查影片</string>
     <string name="yt_cancel">取消</string>
+    <string name="yt_close">關閉</string>
     <string name="yt_open">開啟已儲存的影片</string>
     <string name="yt_retry">重試</string>
     <string name="yt_idle">從 YouTube 分享影片，或貼上影片連結。</string>
-    <string name="yt_inspecting">正在檢查可用性與畫質…</string>
+    <string name="yt_inspecting">正在查詢可用畫質…</string>
     <string name="yt_choose_quality">請選擇可用的 MP4 畫質。</string>
     <string name="yt_channel">YouTube 下載</string>
     <string name="yt_downloading">正在啟動下載…</string>

@@ -36,26 +36,6 @@ internal object Mp4Merger {
         } finally { extractor.release() }
     }
 
-    fun validateProgressive(file: File) {
-        val extractor = MediaExtractor()
-        try {
-            extractor.setDataSource(file.absolutePath)
-            if (!extractor.psshInfo.isNullOrEmpty()) throw DownloadFailure(DownloadError.RESTRICTED)
-            var hasAvc = false
-            for (index in 0 until extractor.trackCount) {
-                val mime = extractor.getTrackFormat(index).getString(MediaFormat.KEY_MIME).orEmpty()
-                if (mime == "video/avc") {
-                    hasAvc = true
-                    extractor.selectTrack(index)
-                }
-            }
-            if (!hasAvc || extractor.sampleTime < 0L) throw DownloadFailure(DownloadError.NO_FORMAT)
-            if (extractor.sampleFlags and MediaExtractor.SAMPLE_FLAG_ENCRYPTED != 0) throw DownloadFailure(DownloadError.RESTRICTED)
-        } finally {
-            extractor.release()
-        }
-    }
-
     suspend fun merge(inputs: List<File>, output: File, audioRequired: Boolean) {
         val muxer = MediaMuxer(output.absolutePath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
         val tracks = ArrayList<Track>()
