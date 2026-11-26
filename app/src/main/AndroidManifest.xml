@@ -40,6 +40,9 @@
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
+        <activity android:name=".youtube.YouTubeQuickActivity" android:exported="true"
+            android:theme="@style/Theme.XTGMediaSaver.Quick" android:launchMode="singleTop"
+            android:label="@string/yt_download_video" android:taskAffinity="" android:excludeFromRecents="true" />
         <service android:name=".youtube.YouTubeDownloadService" android:exported="false" android:foregroundServiceType="dataSync" />
     </application>
 </manifest>

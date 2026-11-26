@@ -52,6 +52,8 @@ internal class YouTubeMenuHook {
                     if (info.versionName != HostVersions.YT_OBSERVED_NAME || info.longVersionCode != HostVersions.YT_OBSERVED_CODE) {
                         log("UNSUPPORTED native share adapter ${info.versionName}"); return
                     }
+                    try { NativePlaybackCapture.install(context.classLoader) }
+                    catch (error: Throwable) { log("native player observer unavailable ${error.javaClass.simpleName}") }
                     val request = Class.forName("alsy", false, context.classLoader)
                     val entity = request.getDeclaredField("a").apply { isAccessible = true }
                     check(entity.type == String::class.java)
@@ -142,8 +144,9 @@ internal class YouTubeMenuHook {
                 if (active?.link != capture.link || !ModulePrefs.isYouTubeEnabled()) return@setOnClickListener
                 try {
                     val intent = Intent(Intent.ACTION_SEND).setType("text/plain").addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-                        .setComponent(ComponentName(BuildConfig.APPLICATION_ID, "${BuildConfig.APPLICATION_ID}.youtube.YouTubeShareActivity"))
+                        .setComponent(ComponentName(BuildConfig.APPLICATION_ID, "${BuildConfig.APPLICATION_ID}.youtube.YouTubeQuickActivity"))
                         .putExtra(Intent.EXTRA_TEXT, capture.link).putExtra(EXTRA_NATIVE_SHARE, true)
+                    NativePlaybackCapture.forVideo(capture.link)?.let { intent.putExtra(NativePlaybackPayload.EXTRA, it) }
                     var owner: Context = context
                     while (owner is ContextWrapper && owner !is Activity && owner.baseContext !== owner) owner = owner.baseContext
                     if (owner is Activity) owner.startActivity(intent)
@@ -152,7 +155,8 @@ internal class YouTubeMenuHook {
                 } catch (error: Throwable) { log("OPEN FAILED ${error.javaClass.simpleName}") }
             }
         }
-        parent.addView(row, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(68)))
+        // Keep the action above the host list: a footer can fall below the screen on tall sheets.
+        parent.addView(row, parent.indexOfChild(list).coerceAtLeast(0), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(68)))
         log("native download row added; parent=${parent.javaClass.simpleName}")
     }
     private fun hasCopyAction(root: View): Boolean {

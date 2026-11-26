@@ -3,7 +3,7 @@
     <string name="yt_download_video">下載影片</string>
     <string name="yt_share_help">YouTube → 分享 → 下載影片。目前影片會自動傳入，確認下載許可後即可選擇畫質，無需複製貼上。</string>
     <string name="yt_link">YouTube 影片連結</string>
-    <string name="yt_permission">我已獲得平台和權利人對下載此影片的許可。</string>
+    <string name="yt_permission">這是公開、非付費且無年齡限制的影片，我已獲得平台和權利人的下載許可。</string>
     <string name="yt_permission_required">請先確認下載許可。能夠公開觀看不代表獲得了下載許可。</string>
     <string name="yt_analyze">檢查影片</string>
     <string name="yt_cancel">取消</string>
@@ -27,6 +27,7 @@
     <string name="yt_interrupted">下載已中斷或取消。請重試以重新取得影片連結。</string>
     <string name="yt_open_failed">未找到播放器或檔案已被移除，請在 Movies 資料夾查看。</string>
     <string name="yt_disabled">YouTube 下載功能已在設定中關閉。</string>
-    <string name="yt_verification_required">YouTube 要求登入或真人驗證，匿名下載已停止。不會讀取帳號或繞過驗證。</string>
+    <string name="yt_verification_required">YouTube 要求登入或真人驗證。請在官方 YouTube 中完成驗證、播放此影片，再點分享 → 下載影片。本次未取得可用的播放工作階段。</string>
+    <string name="yt_native_session">正在使用 YouTube 目前的播放工作階段，僅顯示播放器提供的可用 MP4 畫質。確認下載許可後即可下載。</string>
     <string name="yt_parser_error">解析器暫不相容此次影片回應，下載已停止。</string>
 </resources>

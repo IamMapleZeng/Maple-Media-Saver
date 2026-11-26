@@ -1,5 +1,18 @@
 # 版本验证记录
 
+## v1.2.4 官方播放器响应与原生会话
+
+- ADB 确认 YouTube 仍为 21.47.483 / 1561317016。基于该 APK 的 `allq(bhsp)` 构造器观察官方成功播放响应，未修改宿主返回值、未执行额外登录请求、未读取 cookie / OAuth / 密码。
+- 真机日志观察到 34 个原生格式、1 个可用 AVC MP4 清晰度；原生分享实体的视频 ID 与播放响应精确匹配后，浮窗实际显示当前视频标题、`360p · MP4` 及“正在使用 YouTube 当前播放会话”。这次没有再触发匿名解析失败。
+- 仅在内存保存最多 12 个响应、10 分钟，跨进程字段限定为视频链接、标题及可用媒体信息。再次校验 HTTPS Googlevideo 播放路径、字段数量、总长度、时间和视频 ID，不记录签名媒体 URL。
+- 仍要求逐次确认公开、非付费、无年龄限制和下载许可。原生响应资格字段尚未全部映射，不能声称已自动验证所有这些属性；已验证原生直播分类标志并拒绝额外许可列表，保存前沿用 PSSH / 加密样本拒绝逻辑，不实现 DRM 解密、付费或访问控制绕过。
+- 新增 NativePlaybackCapture.kt、NativePlaybackPayload.kt、YouTubeQuickActivity.kt、NativePlaybackPayloadTest.kt；增量调整 YouTubeMenuHook、YouTubeShareActivity、YouTubeSession、Manifest 和三套字符串资源。X/TG 下载和 Hook 文件无变更。
+- 28 项 JVM 单元测试通过，Release、lintDebug、AndroidTest APK 编译通过；lint 为 0 errors / 29 warnings。修复取消中的匿名请求覆盖新原生会话状态的竞争。
+- 真机 Bundle 边界检查代码已编译；安装 AndroidTest 包被设备以 INSTALL_FAILED_USER_RESTRICTED 拒绝，未执行，未改动设备的安装安全设置。
+- 最终 APK v3 签名验证通过，adb install -r 成功覆盖安装，设备查询版本 1.2.4 / 10204。YouTube 已重启并观察到新版 native player observer 和 native share adapter READY。
+- 检查中发现高分享面板底部入口裁切，最终改为插入宿主列表前；发现动态设置透明主题仍造成黑色背景，最终增加 Manifest 声明透明主题的独立 QuickActivity。最终这两项视觉调整仍待用户复核，不能表述为已真机验收。
+- 未勾选用户的下载许可、未发起实际网络媒体下载。当前只验证到原生播放响应 → 分享 → 对应视频清晰度展示；媒体 HTTP、保存和播放结果仍由用户测试。播放器不提供直接 MP4 时不保证可用或具备高清选项。
+
 ## v1.2.3 原生 YouTube 菜单、浮动确认与错误分类
 
 - 真机日志已确认 `[YT] READY`、`share video captured`、`native download row added; parent=avpq` 和 `native download tap`，UI 层级实际存在 Download video。当前分享视频直接传入，无剪贴板读写。

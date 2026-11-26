@@ -40,6 +40,7 @@ internal object YouTubeSession {
             }
             catch (cancelled: CancellationException) { throw cancelled }
             catch (error: Exception) {
+                currentCoroutineContext().ensureActive()
                 val chain = generateSequence(error as Throwable?) { it.cause }.take(6)
                     .joinToString(" | ") { item -> item.javaClass.name + ": " + item.message.orEmpty()
                         .replace(Regex("https?://[^\\s]+"), "[url]")

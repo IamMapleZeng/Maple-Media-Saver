@@ -3,7 +3,7 @@
     <string name="yt_download_video">Download video</string>
     <string name="yt_share_help">YouTube → Share → Download video. The current video is passed automatically. Confirm permission to load available qualities.</string>
     <string name="yt_link">YouTube video link</string>
-    <string name="yt_permission">I have permission from the platform and rights holder to download this video.</string>
+    <string name="yt_permission">This is a public, non-paid video without age restrictions, and I have permission from the platform and rights holder to download it.</string>
     <string name="yt_permission_required">Confirm download permission before continuing. Public availability alone does not grant permission.</string>
     <string name="yt_analyze">Check video</string>
     <string name="yt_cancel">Cancel</string>
@@ -27,6 +27,7 @@
     <string name="yt_interrupted">Download was interrupted or cancelled. Retry to refresh the video links.</string>
     <string name="yt_open_failed">No video viewer found, or the saved file was removed. Check the Movies folder.</string>
     <string name="yt_disabled">YouTube downloading is disabled in app settings.</string>
-    <string name="yt_verification_required">YouTube requires sign-in or human verification for this request. Anonymous downloading has stopped; no account or verification bypass is used.</string>
+    <string name="yt_verification_required">YouTube requires sign-in or human verification. Complete it in the official YouTube app, play this video, then share → Download video again. No usable playback session was received this time.</string>
+    <string name="yt_native_session">Using the current YouTube playback session. Only the MP4 qualities supplied by the player are listed. Confirm permission before downloading.</string>
     <string name="yt_parser_error">The video parser is incompatible with this response. Downloading has stopped.</string>
 </resources>

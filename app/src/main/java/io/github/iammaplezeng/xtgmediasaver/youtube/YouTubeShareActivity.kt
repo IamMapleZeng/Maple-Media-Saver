@@ -31,7 +31,7 @@ import io.github.iammaplezeng.xtgmediasaver.ModulePrefs
 import io.github.iammaplezeng.xtgmediasaver.R
 import kotlinx.coroutines.launch
 
-class YouTubeShareActivity : AppCompatActivity() {
+open class YouTubeShareActivity : AppCompatActivity() {
     private lateinit var link: TextInputEditText
     private lateinit var permission: MaterialCheckBox
     private lateinit var status: TextView
@@ -46,6 +46,7 @@ class YouTubeShareActivity : AppCompatActivity() {
     private var nativeShare = false
     private var displayed: VideoManifest? = null
     private var pendingChoice: Int? = null
+    private var nativeManifest: VideoManifest? = null
     private val notificationPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
         pendingChoice?.let { choice -> pendingChoice = null; launchService(choice) }
     }
@@ -88,9 +89,10 @@ class YouTubeShareActivity : AppCompatActivity() {
         if (saved != null) { link.setText(saved.getString("link")); permission.isChecked = saved.getBoolean("permission") }
         else receive(intent)
         nativeShare = intent.getBooleanExtra(YouTubeMenuHook.EXTRA_NATIVE_SHARE, false) && YouTubeLink.parse(link.text?.toString().orEmpty()) != null
+        nativeManifest = readNativeManifest()
         if (nativeShare) inputLayout.visibility = View.GONE
         // Native flow inspects public metadata immediately; permission is still mandatory before any media download.
-        if (nativeShare && saved == null && enabled()) YouTubeSession.inspect(link.text?.toString().orEmpty(), true)
+        if (nativeShare && saved == null && enabled()) inspectIncoming()
         lifecycleScope.launch { repeatOnLifecycle(Lifecycle.State.STARTED) { YouTubeSession.state.collect { render(it) } } }
     }
     override fun onSaveInstanceState(out: Bundle) {
@@ -98,13 +100,14 @@ class YouTubeShareActivity : AppCompatActivity() {
     }
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent); setIntent(intent); receive(intent)
-        if (nativeShare && enabled()) YouTubeSession.inspect(link.text?.toString().orEmpty(), true)
+        if (nativeShare && enabled()) inspectIncoming()
     }
     private fun receive(intent: Intent) {
         if (intent.action == Intent.ACTION_SEND) {
             YouTubeSession.resetIncoming()
             link.setText(intent.getCharSequenceExtra(Intent.EXTRA_TEXT)?.toString().orEmpty())
             nativeShare = intent.getBooleanExtra(YouTubeMenuHook.EXTRA_NATIVE_SHARE, false) && YouTubeLink.parse(link.text?.toString().orEmpty()) != null
+            nativeManifest = if (nativeShare) NativePlaybackPayload.decode(intent.getBundleExtra(NativePlaybackPayload.EXTRA), YouTubeLink.parse(link.text?.toString().orEmpty()).orEmpty()) else null
             inputLayout.visibility = if (nativeShare) View.GONE else View.VISIBLE
             permission.isChecked = false
         } else link.setText(getSharedPreferences(YouTubeDownloadService.HISTORY, MODE_PRIVATE).getString("last_link", ""))
@@ -115,11 +118,23 @@ class YouTubeShareActivity : AppCompatActivity() {
         if (!nativeShare && !permission.isChecked) { status.setText(R.string.yt_permission_required); return }
         val raw = link.text?.toString().orEmpty()
         getSharedPreferences(YouTubeDownloadService.HISTORY, MODE_PRIVATE).edit().putString("last_link", raw.take(16_384)).apply()
-        YouTubeSession.inspect(raw, true)
+        inspectIncoming()
     }
+    private fun inspectIncoming() {
+        nativeManifest = readNativeManifest()
+        val manifest = nativeManifest
+        if (manifest != null && manifest.link == YouTubeLink.parse(link.text?.toString().orEmpty())) {
+            YouTubeSession.resetIncoming()
+            YouTubeSession.update(YouTubeState.Ready(manifest))
+        } else YouTubeSession.inspect(link.text?.toString().orEmpty(), true)
+    }
+    private fun readNativeManifest(): VideoManifest? = if (!nativeShare) null else runCatching {
+        NativePlaybackPayload.decode(intent.getBundleExtra(NativePlaybackPayload.EXTRA), YouTubeLink.parse(link.text?.toString().orEmpty()).orEmpty())
+    }.getOrNull()
     private fun startDownload() {
         if (!enabled() || !permission.isChecked) { status.setText(R.string.yt_permission_required); return }
         val ready = (YouTubeSession.state.value as? YouTubeState.Ready)?.manifest ?: return
+        if (nativeManifest != null && readNativeManifest() == null) { inspectIncoming(); return }
         if (YouTubeLink.parse(link.text?.toString().orEmpty()) != ready.link) { inspect(); return }
         val choice = quality.selectedItemPosition
         if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
@@ -150,7 +165,7 @@ class YouTubeShareActivity : AppCompatActivity() {
                     displayed = state.manifest
                     quality.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, state.manifest.choices.map { it.label })
                 }
-                status.setText(R.string.yt_choose_quality)
+                status.setText(if (nativeManifest != null) R.string.yt_native_session else R.string.yt_choose_quality)
             }
             is YouTubeState.Downloading -> {
                 progress.isIndeterminate = state.percent < 0
