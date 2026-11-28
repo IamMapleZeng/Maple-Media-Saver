@@ -9,6 +9,8 @@ import android.os.Looper
 import android.provider.MediaStore
 import android.widget.Toast
 import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.Locale
@@ -28,8 +30,11 @@ internal object ImageBatchDownloader {
             val stamp = System.currentTimeMillis()
             urls.forEachIndexed { i, raw ->
                 if (raw.isNotEmpty()) try {
-                    if (saveToGallery(app, fetchBestQuality(raw), stamp, i + 1)) saved++
-                } catch (_: Throwable) { /* Continue the rest of this batch. */ }
+                    val published = downloadBestQuality(raw) { url ->
+                        download(app, url, stamp, i + 1)
+                    }
+                    if (published) saved++
+                } catch (_: Exception) { /* Continue the rest of this batch. */ }
             }
             showToast(app, LocaleStrings.downloadedImagesToast(saved, urls.size, locale), Toast.LENGTH_LONG)
         }
@@ -48,45 +53,79 @@ internal object ImageBatchDownloader {
         if (parts.none { it.startsWith("name=") }) query.add("name=orig")
         return rawUrl.substring(0, index) + "?" + query.joinToString("&")
     }
-    private fun fetchBestQuality(raw: String): DownloadedImage {
+    // Only a failed network read should trigger another download at the fallback URL.
+    private class ImageReadFailure(cause: IOException) : IOException(cause)
+    private inline fun <T> readFromNetwork(block: () -> T): T = try {
+        block()
+    } catch (error: IOException) {
+        throw ImageReadFailure(error)
+    }
+
+    internal fun downloadBestQuality(raw: String, download: (String) -> Boolean): Boolean {
         val original = toOriginalUrl(raw) ?: raw
-        return try { fetchUrl(original) } catch (error: IOException) {
-            if (original != raw) fetchUrl(raw) else throw error
+        return try {
+            download(original)
+        } catch (error: ImageReadFailure) {
+            if (original == raw) throw error
+            download(raw)
         }
     }
-    private fun fetchUrl(url: String): DownloadedImage {
-        val connection = URL(url).openConnection() as HttpURLConnection
+
+    private fun download(context: Context, url: String, stamp: Long, index: Int): Boolean {
+        val connection = readFromNetwork { URL(url).openConnection() as HttpURLConnection }
         connection.connectTimeout = 15_000
         connection.readTimeout = 20_000
         connection.instanceFollowRedirects = true
         connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Android)")
         try {
-            if (connection.responseCode !in 200..299) throw IOException("HTTP ${connection.responseCode}")
-            val bytes = connection.inputStream.use { it.readBytes() }
-            if (bytes.isEmpty()) throw IOException("Empty image body")
-            val mime = resolveMimeType(connection.contentType, url)
-            return DownloadedImage(bytes, mime, when (mime) { "image/png" -> "png"; "image/webp" -> "webp"; else -> "jpg" })
-        } finally { connection.disconnect() }
+            val input = readFromNetwork {
+                val status = connection.responseCode
+                if (status !in 200..299) throw IOException("HTTP $status")
+                connection.inputStream
+            }
+            return input.use {
+                saveToGallery(context, it, resolveMimeType(connection.contentType, url), stamp, index)
+            }
+        } finally {
+            connection.disconnect()
+        }
     }
-    private fun saveToGallery(context: Context, image: DownloadedImage, stamp: Long, index: Int): Boolean {
+
+    private fun saveToGallery(context: Context, input: InputStream, mime: String, stamp: Long, index: Int): Boolean {
+        val ext = when (mime) {
+            "image/png" -> "png"
+            "image/webp" -> "webp"
+            else -> "jpg"
+        }
         val resolver = context.contentResolver
         val values = ContentValues().apply {
-            put(MediaStore.Images.Media.DISPLAY_NAME, "X_${stamp}_$index.${image.ext}")
-            put(MediaStore.Images.Media.MIME_TYPE, image.mime)
+            put(MediaStore.Images.Media.DISPLAY_NAME, "X_${stamp}_$index.$ext")
+            put(MediaStore.Images.Media.MIME_TYPE, mime)
             put(MediaStore.Images.Media.RELATIVE_PATH, "${Environment.DIRECTORY_PICTURES}/XTGMediaSaver")
             put(MediaStore.Images.Media.IS_PENDING, 1)
         }
         val uri: Uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values) ?: return false
         try {
             val stream = resolver.openOutputStream(uri) ?: throw IOException("Cannot open media output")
-            stream.use { it.write(image.bytes); it.flush() }
-            resolver.update(uri, ContentValues().apply { put(MediaStore.Images.Media.IS_PENDING, 0) }, null, null)
+            stream.use { copyImage(input, it) }
+            val published = ContentValues().apply { put(MediaStore.Images.Media.IS_PENDING, 0) }
+            if (resolver.update(uri, published, null, null) != 1) throw IOException("Cannot publish image")
             return true
         } catch (error: Exception) {
             resolver.delete(uri, null, null)
             throw error
         }
     }
+    internal fun copyImage(input: InputStream, output: OutputStream) {
+        val buffer = ByteArray(64 * 1024)
+        var count = readFromNetwork { input.read(buffer) }
+        if (count < 0) throw ImageReadFailure(IOException("Empty image body"))
+        while (count >= 0) {
+            output.write(buffer, 0, count)
+            count = readFromNetwork { input.read(buffer) }
+        }
+    }
+
     private fun resolveMimeType(contentType: String?, url: String): String {
         val type = contentType?.lowercase(Locale.US).orEmpty()
         if ("png" in type) return "image/png"
@@ -97,5 +136,4 @@ internal object ImageBatchDownloader {
         if ("format=webp" in lower || lower.endsWith(".webp")) return "image/webp"
         return "image/jpeg"
     }
-    private data class DownloadedImage(val bytes: ByteArray, val mime: String, val ext: String)
 }

@@ -20,6 +20,25 @@ class YtDlpFormatsTest {
         assertEquals(listOf("2160p · MP4", "1080p · MP4"), manifest.choices.map { it.label })
         assertEquals(listOf("401+140", "137+140"), manifest.choices.map { it.ytDlpFormat })
     }
+    @Test fun picksPreferredTracksAndKeepsTheFirstEquallyRankedFormat() {
+        val webm = video("248", 1080).replace("mp4", "webm")
+        val av1 = video("399", 1080, "av01")
+        val lowRate = video("136", 1080).replace("\"height\":", "\"tbr\":200,\"height\":")
+        val highRate = lowRate.replace("200", "500").replace("136", "137")
+        val tied = highRate.replace("137", "138")
+        val preferredAudio = audio.replace("128", "192").replace("140", "141")
+        val webmAudio = preferredAudio.replace("m4a", "webm").replace("192", "256").replace("141", "251")
+        val formats = listOf(webm, av1, lowRate, highRate, tied, audio, preferredAudio, webmAudio)
+        val manifest = YtDlpFormats.parse(info(formats.joinToString()), link)
+        assertEquals("137+141", manifest.choices.single().ytDlpFormat)
+    }
+
+    @Test fun fallsBackToMuxedVideoWhenNoAudioTrackIsUsable() {
+        val muxed = video("18", 360).replace("\"acodec\":\"none\"", "\"acodec\":\"mp4a\"")
+        val manifest = YtDlpFormats.parse(info("${video("137", 1080)},$muxed"), link)
+        assertEquals("18", manifest.choices.single().ytDlpFormat)
+    }
+
     @Test fun encryptedFormatsNeverBecomeDownloadChoices() {
         val manifest = YtDlpFormats.parse(info("$audio,${video("137", 1080)},${video("401", 2160, drm = true)}"), link)
         assertEquals(listOf(1080), manifest.choices.map { it.height })
